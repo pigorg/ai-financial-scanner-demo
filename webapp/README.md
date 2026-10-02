@@ -1,23 +1,29 @@
-# RS Scanner – deploy su cPanel
+# AI Financial Scanner Demo – deploy su cPanel
 
 ## Struttura
-- `public_html/` → da caricare nella root del sito (o in una sottocartella)
+- `public_html/` → radice documento del sito
   - `index.html`, `app.js`, `style.css`: frontend statico
   - `glossary.json`: definizioni dei campi (usate dall'icona ⓘ)
   - `data.json`: generato dal job (non modificare a mano)
   - `hist/`: storico per ticker usato dal grafico (generato dal job)
-- `scripts/update_data.py`: job che scarica i prezzi e scrive `public_html/data.json`
+- `scripts/update_data.php`: job di aggiornamento per il **cron di cPanel** (PHP 7.4 o superiore, richiede curl e dom)
+- `scripts/update_data.py`: stessa logica in Python, per PC / GitHub Actions (non serve sul server)
 
-## Installazione
-1. Carica `public_html/*` sul sito e `scripts/` **fuori** dalla cartella pubblica (es. `~/scanner/scripts`).
-2. cPanel → **Setup Python App** (o SSH): crea un virtualenv e `pip install -r scripts/requirements.txt`.
-3. Controlla in `update_data.py` il percorso `OUT`: deve puntare a `public_html/data.json` del sito
-   (modificalo se le cartelle sul server hanno posizioni diverse).
-4. cPanel → **Cron Jobs**, ogni giorno feriale alle 23:30 (dopo la chiusura USA):
-   `30 23 * * 1-5 /home/UTENTE/virtualenv/scanner/3.x/bin/python /home/UTENTE/scanner/scripts/update_data.py`
+## Cron su cPanel (PHP)
+Il job scarica i prezzi da Yahoo Finance, calcola i campi e riscrive `data.json` e `hist/`.
+Dura circa 1 minuto. Cron Jobs → ogni giorno feriale alle 23:30 (dopo la chiusura USA):
 
-## Se l'hosting non regge Python/pandas
-Esegui `update_data.py` altrove (PC, GitHub Actions) e carica `data.json` e la cartella `hist/` via FTP/SFTP: il sito non cambia.
+    30 23 * * 1-5 /usr/bin/php /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php > /home/UTENTE/update.log 2>&1
+
+- Il percorso di `php` può variare (`/usr/bin/php`, `/opt/cpanel/ea-php82/root/usr/bin/php`, `/opt/alt/php82/usr/bin/php`):
+  per sceglierne uno con PHP 8, verifica le versioni disponibili con un cron di prova `ls -d /usr/bin/php* /opt/cpanel/ea-php*/root/usr/bin/php /opt/alt/php*/usr/bin/php`.
+- Tieni il file di log **fuori** dalla radice documento.
+- I bilanci (P/E, EPS, ricavi) sono riletti al massimo ogni 7 giorni e salvati in `scripts/fund_cache.json`.
+
+## Alternative
+- **PC / GitHub Actions:** `python webapp/scripts/update_data.py`, poi carica `data.json` e `hist/` sul sito
+  (workflow pronto in `.github/workflows/update-scanner-data.yml`).
 
 ## Modificare i campi
-Aggiungi/togli la colonna in `compute_row` (Python), in `COLS` (app.js) e la definizione in `glossary.json` (usata dall'icona ⓘ).
+Le colonne vanno aggiornate in tre punti: il calcolo (`compute_row` in Python, `compute_row` in PHP),
+`COLS`/`VIEWS` in `app.js` e la definizione in `glossary.json` (usata dall'icona ⓘ).

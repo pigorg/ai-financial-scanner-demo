@@ -111,8 +111,8 @@ function renderGuide() {
 }
 
 function tick() {
-  const now = new Date(), tz = 'America/New_York';
-  $('clock').textContent = now.toLocaleTimeString('en-GB', {timeZone: tz}) + ' ET';
+  const now = new Date(), tz = 'Europe/Rome';
+  $('clock').textContent = now.toLocaleTimeString('en-GB', {timeZone: tz}) + ' ROMA';
   $('mdate').textContent = now.toLocaleDateString('it-IT', {timeZone: tz});
 }
 
@@ -192,9 +192,9 @@ async function openChart(t) {
   if (chart) chart.remove();
   chart = LightweightCharts.createChart($('chart'), {
     autoSize: true,
-    layout: {background: {color: '#0a141d'}, textColor: '#7b8d9b'},
-    grid: {vertLines: {color: '#102431'}, horzLines: {color: '#102431'}},
-    rightPriceScale: {borderColor: '#1b3f52'}, timeScale: {borderColor: '#1b3f52'},
+    layout: {background: {color: '#0a120a'}, textColor: '#7b8d9b'},
+    grid: {vertLines: {color: '#18240f'}, horzLines: {color: '#18240f'}},
+    rightPriceScale: {borderColor: '#2c4119'}, timeScale: {borderColor: '#2c4119'},
   });
   chart.addCandlestickSeries({upColor: '#2fe08a', downColor: '#ff5a4d', borderVisible: false, wickUpColor: '#2fe08a', wickDownColor: '#ff5a4d'}).setData(bars);
   chart.addLineSeries({color: '#58a6ff', lineWidth: 1, priceLineVisible: false}).setData(sma(bars, 50));
