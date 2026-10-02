@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RS Scanner</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="demo-banner" role="note"><strong>DISCLAIMER – ESERCIZIO DIMOSTRATIVO.</strong> Questo sito è un esercizio demo a scopo puramente illustrativo. I dati mostrati non sono garantiti per correttezza, completezza o aggiornamento, e non è garantito il corretto funzionamento del servizio. Non costituisce consulenza né raccomandazione finanziaria. Si declina ogni responsabilità per qualsiasi uso delle informazioni presenti.</div>
+<header>
+  <h1>RS Scanner</h1>
+  <span id="updated"></span>
+</header>
+
+<div id="views"><span>VISTA DATI</span><button class="on" data-v="essenziale">Essenziale</button><button data-v="completa">Completa</button></div>
+<section class="filters">
+  <label>Cerca <input id="f-search" placeholder="ticker o nome"></label>
+  <label>Settore <select id="f-sector"><option value="">Tutti</option></select></label>
+  <label>RS Composite min <input id="f-rs" type="number" min="1" max="99" value="1"></label>
+  <label>Perf 3M min % <input id="f-p3" type="number" placeholder="-"></label>
+  <label>Dist. Max 52w min % <input id="f-dh" type="number" placeholder="-"></label>
+  <label><input id="f-50" type="checkbox"> Sopra SMA50</label>
+  <label><input id="f-200" type="checkbox"> Sopra SMA200</label>
+  <span id="count"></span>
+</section>
+
+<div class="table-wrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+<p class="disclaimer"><strong>Disclaimer.</strong> Esercizio demo a solo scopo illustrativo: i dati sono calcolati da fonti pubbliche (Yahoo Finance, Wikipedia) senza alcuna garanzia di accuratezza, completezza, tempestività o perfetto funzionamento. Nessuna consulenza o raccomandazione finanziaria. Ogni responsabilità è declinata per decisioni prese sulla base di quanto mostrato.<br>Clicca su una riga per il grafico; passa su ⓘ accanto alle colonne per capirne il significato. Grafici: <a href="https://github.com/tradingview/lightweight-charts" style="color:inherit">TradingView Lightweight Charts</a>.</p>
+
+<div id="modal" hidden>
+  <div class="modal-box">
+    <div class="chat-head"><span id="m-title"></span><button id="m-close">×</button></div>
+    <div id="chart"></div>
+    <div class="legend"><span class="l1">● SMA50</span> <span class="l2">● SMA200</span> <span>Dati giornalieri di fine seduta</span></div>
+  </div>
+</div>
+<div id="tip" hidden></div>
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
