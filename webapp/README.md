@@ -13,7 +13,7 @@
 Il job scarica i prezzi da Yahoo Finance, calcola i campi e riscrive `data.json` e `hist/`.
 Dura circa 1 minuto. Cron Jobs → ogni giorno feriale alle 23:30 (dopo la chiusura USA):
 
-    30 23 * * 1-5 /usr/bin/php /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php > /home/UTENTE/update.log 2>&1
+    30 23 * * 1-5 /opt/cpanel/ea-php83/root/usr/bin/php /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php > /home/UTENTE/update.log 2>&1
 
 - Il percorso di `php` può variare (`/usr/bin/php`, `/opt/cpanel/ea-php82/root/usr/bin/php`, `/opt/alt/php82/usr/bin/php`):
   per sceglierne uno con PHP 8, verifica le versioni disponibili con un cron di prova `ls -d /usr/bin/php* /opt/cpanel/ea-php*/root/usr/bin/php /opt/alt/php*/usr/bin/php`.

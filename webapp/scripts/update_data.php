@@ -4,7 +4,8 @@
  * e scrive public_html/data.json + public_html/hist/*.json.
  * Pensato per il cron di cPanel (solo CLI). Solo indicatori descrittivi: nessuna raccomandazione.
  */
-if (PHP_SAPI !== 'cli') { http_response_code(403); exit('CLI only'); }
+// Solo da cron/terminale: blocca l'esecuzione via web (alcuni host usano php-cgi anche per il cron).
+if (PHP_SAPI !== 'cli' && isset($_SERVER['REQUEST_METHOD'])) { http_response_code(403); exit('CLI only'); }
 set_time_limit(0);
 error_reporting(E_ALL & ~E_DEPRECATED);
 ini_set('memory_limit', '512M');
