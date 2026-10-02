@@ -117,7 +117,7 @@ def r(x, nd=2):
 def avwap_dist(df: pd.DataFrame, anchor: pd.Timestamp) -> float | None:
     """Distanza % del prezzo dall'AVWAP (VWAP ancorato) calcolato dalla data `anchor`."""
     d = df[df.index >= anchor]
-    if len(d) < 2 or d["Volume"].sum() == 0:
+    if len(d) < 1 or d["Volume"].sum() == 0:
         return None
     typical = (d["High"] + d["Low"] + d["Close"]) / 3
     vwap = float((typical * d["Volume"]).sum() / d["Volume"].sum())
@@ -223,6 +223,7 @@ def main() -> int:
     rows.sort(key=lambda x: (x["rs_composite"] is None, -(x["rs_composite"] or 0)))
     payload = {
         "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "market_date": spy_close.index[-1].strftime("%Y-%m-%d"),
         "benchmark": BENCHMARK, "count": len(rows), "rows": rows,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
