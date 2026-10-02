@@ -1,0 +1,51 @@
+services:
+  tradingagents:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - ./data:/home/appuser/.tradingagents
+      - ./reports:/home/appuser/app/reports
+    tty: true
+    stdin_open: true
+
+  # One-shot run of the screener -> deep-analysis -> allocator pipeline.
+  # Not scheduled by compose itself: trigger daily via host cron, e.g.
+  #   0 7 * * 1-5 cd /path/to/trading-agents && docker compose run --rm tradingagents-pipeline
+  tradingagents-pipeline:
+    build: .
+    env_file:
+      - .env
+    entrypoint: ["tradingagents"]
+    command: ["pipeline"]
+    volumes:
+      - ./data:/home/appuser/.tradingagents
+      - ./reports:/home/appuser/app/reports
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    profiles:
+      - ollama
+
+  tradingagents-ollama:
+    build: .
+    env_file:
+      - .env
+    environment:
+      - TRADINGAGENTS_LLM_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://ollama:11434/v1
+    volumes:
+      - ./data:/home/appuser/.tradingagents
+      - ./reports:/home/appuser/app/reports
+    depends_on:
+      - ollama
+    tty: true
+    stdin_open: true
+    profiles:
+      - ollama
+
+volumes:
+  tradingagents_data:
+  ollama_data:
