@@ -50,7 +50,7 @@ final class Trading {
 
     // ------------------------------------------------------------ ordini
     /** Inserisce l'ordine: immediato ('now') o in coda per il prossimo aggiornamento ('next'). */
-    public static function placeOrder(array $user, string $ticker, string $side, int $qty, string $mode): array {
+    public static function placeOrder(array $user, string $ticker, string $side, int $qty, string $mode, ?float $stopLoss = null, ?float $takeProfit = null): array {
         $ticker = strtoupper(trim($ticker));
         if (!in_array($side, ['buy', 'sell'], true)) throw new ApiError('Operazione non valida.');
         if (!in_array($mode, ['now', 'next'], true)) throw new ApiError('Modalità di esecuzione non valida.');
@@ -58,6 +58,13 @@ final class Trading {
         $p = self::prices();
         self::assertFresh($p);
         $q = self::quote($ticker, $p);
+        $hasLevels = $stopLoss !== null || $takeProfit !== null;
+        if ($hasLevels) {
+            if ($side !== 'buy' || $mode !== 'now') {
+                throw new ApiError('Stop loss e take profit si impostano su un acquisto immediato (oppure dal portafoglio, dopo l\'esecuzione).');
+            }
+            self::validateLevels((float)$q['p'], $stopLoss, $takeProfit);
+        }
 
         if ($mode === 'next') {
             $st = db()->prepare('SELECT COUNT(*) FROM orders WHERE user_id = ? AND status = \'pending\'');
@@ -69,6 +76,7 @@ final class Trading {
             return ['id' => (int)db()->lastInsertId(), 'status' => 'pending'];
         }
         $id = self::fill((int)$user['id'], $ticker, $side, $qty, null, 'now');
+        if ($hasLevels) self::applyLevels((int)$user['id'], $ticker, $stopLoss, $takeProfit);
         return ['id' => $id, 'status' => 'executed'];
     }
 
@@ -76,7 +84,7 @@ final class Trading {
      * Esegue un ordine al prezzo dello snapshot corrente, in transazione.
      * $orderId = ordine pending già esistente da completare (null: ne crea uno nuovo).
      */
-    public static function fill(int $userId, string $ticker, string $side, int $qty, ?int $orderId, string $mode): int {
+    public static function fill(int $userId, string $ticker, string $side, int $qty, ?int $orderId, string $mode, ?string $note = null): int {
         $p = self::prices();
         self::assertFresh($p);
         $q = self::quote($ticker, $p);
@@ -138,10 +146,10 @@ final class Trading {
                     ->execute([...$vals, $orderId]);
             } else {
                 $pdo->prepare('INSERT INTO orders (user_id, ticker, market, side, qty, mode, status, snapshot, price, price_ccy,
-                        fx_rate, gross, commission, realized_pl, created_at, executed_at)
-                        VALUES (?,?,?,?,?,?,\'executed\',?,?,?,?,?,?,?,?,?)')
+                        fx_rate, gross, commission, realized_pl, note, created_at, executed_at)
+                        VALUES (?,?,?,?,?,?,\'executed\',?,?,?,?,?,?,?,?,?,?)')
                     ->execute([$userId, $ticker, $q['m'], $side, $qty, $mode, $vals[0], $vals[1], $vals[2], $vals[3],
-                        $vals[4], $vals[5], $vals[6], $now, $now]);
+                        $vals[4], $vals[5], $vals[6], $note, $now, $now]);
                 $orderId = (int)$pdo->lastInsertId();
             }
             $pdo->commit();
@@ -175,12 +183,74 @@ final class Trading {
         return [$done, $rejected];
     }
 
+    // ------------------------------------------------------------ stop loss / take profit
+    /** I livelli sono prezzi nella valuta del titolo. Lo stop deve stare sotto il prezzo, il take profit sopra. */
+    private static function validateLevels(float $price, ?float $sl, ?float $tp): void {
+        if ($sl !== null && ($sl <= 0 || $sl >= $price)) {
+            throw new ApiError('Lo stop loss deve essere maggiore di 0 e inferiore al prezzo attuale (' . number_format($price, 2, ',', '.') . ').');
+        }
+        if ($tp !== null && $tp <= $price) {
+            throw new ApiError('Il take profit deve essere superiore al prezzo attuale (' . number_format($price, 2, ',', '.') . ').');
+        }
+    }
+
+    private static function applyLevels(int $userId, string $ticker, ?float $sl, ?float $tp): void {
+        db()->prepare('UPDATE positions SET stop_loss = ?, take_profit = ? WHERE user_id = ? AND ticker = ?')
+            ->execute([$sl === null ? null : round($sl, 4), $tp === null ? null : round($tp, 4), $userId, $ticker]);
+    }
+
+    /** Imposta (o rimuove, con null) stop loss e take profit di una posizione aperta. */
+    public static function setLevels(array $user, string $ticker, ?float $sl, ?float $tp): void {
+        $ticker = strtoupper(trim($ticker));
+        $st = db()->prepare('SELECT qty FROM positions WHERE user_id = ? AND ticker = ?');
+        $st->execute([$user['id'], $ticker]);
+        if (!$st->fetch()) throw new ApiError('Non hai una posizione aperta su ' . $ticker . '.', 404);
+        $p = self::prices();
+        self::assertFresh($p);
+        self::validateLevels((float)self::quote($ticker, $p)['p'], $sl, $tp);
+        self::applyLevels((int)$user['id'], $ticker, $sl, $tp);
+    }
+
+    /**
+     * Dopo ogni aggiornamento prezzi: vende l'intera posizione se il prezzo ha raggiunto lo stop loss o il take profit.
+     * L'esecuzione avviene al prezzo dello snapshot, che può differire dal livello (gap).
+     */
+    public static function checkTriggers(): array {
+        $p = self::prices();
+        $stop = 0; $take = 0;
+        $rows = db()->query('SELECT p.user_id, p.ticker, p.qty, p.stop_loss, p.take_profit FROM positions p
+                JOIN users u ON u.id = p.user_id AND u.status = \'active\'
+                WHERE p.stop_loss IS NOT NULL OR p.take_profit IS NOT NULL')->fetchAll();
+        foreach ($rows as $r) {
+            $q = $p['prices'][$r['ticker']] ?? null;
+            if (!$q || empty($q['p'])) continue;
+            $price = (float)$q['p'];
+            $label = number_format($price, 2, ',', '.') . ' ' . $q['c'];
+            $note = null;
+            $isStop = false;
+            if ($r['stop_loss'] !== null && $price <= (float)$r['stop_loss']) {
+                $note = 'Stop loss attivato a ' . number_format((float)$r['stop_loss'], 2, ',', '.') . ' (prezzo ' . $label . ')';
+                $isStop = true;
+            } elseif ($r['take_profit'] !== null && $price >= (float)$r['take_profit']) {
+                $note = 'Take profit raggiunto a ' . number_format((float)$r['take_profit'], 2, ',', '.') . ' (prezzo ' . $label . ')';
+            }
+            if ($note === null) continue;
+            try {
+                self::fill((int)$r['user_id'], $r['ticker'], 'sell', (int)$r['qty'], null, 'now', $note);
+                if ($isStop) $stop++; else $take++;
+            } catch (\Throwable $e) {
+                error_log('trigger ' . $r['user_id'] . ' ' . $r['ticker'] . ': ' . $e->getMessage());
+            }
+        }
+        return [$stop, $take];
+    }
+
     // ------------------------------------------------------------ portafoglio
     /** Posizioni valorizzate ai prezzi correnti + liquidità + P/L complessivo. */
     public static function portfolio(array $user): array {
         $p = self::prices();
         $acc = $user['currency'];
-        $st = db()->prepare('SELECT ticker, qty, avg_cost FROM positions WHERE user_id = ? ORDER BY ticker');
+        $st = db()->prepare('SELECT ticker, qty, avg_cost, stop_loss, take_profit FROM positions WHERE user_id = ? ORDER BY ticker');
         $st->execute([$user['id']]);
         $positions = []; $invested = 0.0;
         foreach ($st->fetchAll() as $r) {
@@ -194,6 +264,8 @@ final class Trading {
             $positions[] = [
                 'ticker' => $r['ticker'], 'name' => $q['n'] ?? '', 'market' => $q['m'] ?? (substr($r['ticker'], -3) === '.MI' ? 'IT' : 'US'),
                 'qty' => $qty, 'avg_cost' => $avg, 'price' => $price, 'price_ccy' => $q['c'] ?? null,
+                'stop_loss' => $r['stop_loss'] === null ? null : (float)$r['stop_loss'],
+                'take_profit' => $r['take_profit'] === null ? null : (float)$r['take_profit'],
                 'value' => $value, 'cost' => $cost, 'pl' => round_money($value - $cost),
                 'pl_pct' => $cost > 0 ? round(($value / $cost - 1) * 100, 2) : 0.0, 'stale' => $stale,
             ];

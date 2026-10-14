@@ -184,7 +184,9 @@ async function viewPortfolio() {
       <td>${x.price === null ? '—' : num(x.price) + ' ' + esc(x.price_ccy)}</td>
       <td>${money(x.value, c)}</td><td class="${cls(x.pl)}">${sgn(x.pl)} (${sgn(x.pl_pct)}%)</td>
       <td>${num(x.weight, 1)}%</td>
-      <td><button class="sm" data-sell="${esc(x.ticker)}">VENDI</button> <button class="sm ghost" data-buy="${esc(x.ticker)}">COMPRA</button></td></tr>`).join('');
+      <td class="neg">${x.stop_loss === null ? '<span class="muted">—</span>' : num(x.stop_loss) + ' ' + esc(x.price_ccy || '')}</td>
+      <td class="pos">${x.take_profit === null ? '<span class="muted">—</span>' : num(x.take_profit) + ' ' + esc(x.price_ccy || '')}</td>
+      <td><button class="sm" data-sell="${esc(x.ticker)}">VENDI</button> <button class="sm ghost" data-buy="${esc(x.ticker)}">COMPRA</button> <button class="sm ghost" data-lv="${esc(x.ticker)}" title="Imposta stop loss e take profit">SL/TP</button></td></tr>`).join('');
   setView(`<h2>Portafoglio</h2>
     <p class="muted">Conto in ${c === 'EUR' ? 'euro' : 'dollari USA'} · budget iniziale ${money(p.initial_budget, c)}</p>
     <div class="acc-kpis">
@@ -195,11 +197,46 @@ async function viewPortfolio() {
     </div>
     ${pricesInfo()}
     <h3>POSIZIONI APERTE</h3>
-    ${p.positions.length ? `<div class="table-wrap"><table><thead><tr><th class="l">Ticker</th><th class="l">Società</th><th>Qtà</th><th>Costo medio</th><th>Prezzo</th><th>Valore</th><th>P/L</th><th>Peso</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+    ${p.positions.length ? `<div class="table-wrap"><table><thead><tr><th class="l">Ticker</th><th class="l">Società</th><th>Qtà</th><th>Costo medio</th><th>Prezzo</th><th>Valore</th><th>P/L</th><th>Peso</th><th>Stop loss</th><th>Take profit</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
       : '<div class="empty panel">Non hai ancora posizioni aperte. Vai su <a href="#/trade" style="color:var(--cyan)">OPERA</a> per acquistare la tua prima azione con il denaro virtuale.</div>'}
-    <p class="note">Il P/L include l'effetto del cambio EUR/USD per i titoli in valuta diversa dal conto. Le commissioni sono simulate.</p>`);
+    <p class="note">Il P/L include l'effetto del cambio EUR/USD per i titoli in valuta diversa dal conto. Le commissioni sono simulate. Stop loss e take profit sono livelli di prezzo nella valuta del titolo: se raggiunti, la posizione viene venduta per intero al primo aggiornamento dei prezzi (circa ogni ora) e il prezzo di vendita può differire dal livello.</p>`);
   document.querySelectorAll('[data-sell]').forEach(b => b.onclick = () => go('trade?t=' + encodeURIComponent(b.dataset.sell) + '&side=sell'));
   document.querySelectorAll('[data-buy]').forEach(b => b.onclick = () => go('trade?t=' + encodeURIComponent(b.dataset.buy) + '&side=buy'));
+  document.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => openLevels(p.positions.find(x => x.ticker === b.dataset.lv), viewPortfolio));
+}
+
+/** Finestra per impostare/rimuovere stop loss e take profit di una posizione. */
+function openLevels(x, done) {
+  if (!x) return;
+  if (x.price === null) { alert('Prezzo non disponibile per questo titolo: riprova più tardi.'); return; }
+  const ccy = x.price_ccy || '';
+  const el = document.createElement('div');
+  el.id = 'lvmodal';
+  el.innerHTML = `<div class="modal-box am-box" role="dialog" aria-modal="true">
+    <div class="mhead"><span>Stop loss / Take profit · ${esc(x.ticker)}</span><button type="button" data-x aria-label="Chiudi">×</button></div>
+    <div class="am-body">
+      <p class="note">Prezzo attuale: <b>${num(x.price)} ${esc(ccy)}</b> · posizione: ${x.qty} azioni.<br>
+      Se il prezzo scende fino allo <b>stop loss</b> o sale fino al <b>take profit</b>, l'intera posizione viene venduta al primo aggiornamento dei prezzi (circa ogni ora). Il prezzo di vendita può differire dal livello impostato. Lascia vuoto per non usarlo.</p>
+      <form id="f-lv"><div class="fmsg"></div>
+        <label class="fld">Stop loss (${esc(ccy)}) · sotto il prezzo attuale<input name="stop_loss" type="number" step="0.01" min="0" value="${x.stop_loss ?? ''}"><small data-h="stop_loss"></small></label>
+        <label class="fld">Take profit (${esc(ccy)}) · sopra il prezzo attuale<input name="take_profit" type="number" step="0.01" min="0" value="${x.take_profit ?? ''}"><small data-h="take_profit"></small></label>
+        <button class="primary" type="submit">SALVA</button>
+      </form>
+    </div></div>`;
+  document.body.appendChild(el);
+  const close = () => el.remove();
+  el.addEventListener('click', e => { if (e.target === el || e.target.closest('[data-x]')) close(); });
+  el.querySelectorAll('input').forEach(i => {
+    const hint = () => {
+      const v = parseFloat(i.value), h = el.querySelector(`[data-h="${i.name}"]`);
+      h.textContent = v > 0 ? `${sgn((v / x.price - 1) * 100)}% rispetto al prezzo attuale` : '';
+    };
+    i.addEventListener('input', hint); hint();
+  });
+  bind('#f-lv', async d => {
+    await api('set_levels', {ticker: x.ticker, stop_loss: d.stop_loss, take_profit: d.take_profit});
+    close(); done();
+  });
 }
 
 async function viewTrade(q) {
@@ -220,6 +257,11 @@ async function viewTrade(q) {
         <div id="t-suggest" class="suggest" hidden></div>
         <div id="t-quote"></div>
         <label class="fld">Quantità (azioni)<input id="t-qty" name="qty" type="number" min="1" step="1" value="1" required></label>
+        <div class="fld row2">
+          <div>Stop loss (prezzo, facoltativo)<input id="t-sl" name="stop_loss" type="number" step="0.01" min="0" placeholder="es. 95"><small id="t-sl-h"></small></div>
+          <div>Take profit (prezzo, facoltativo)<input id="t-tp" name="take_profit" type="number" step="0.01" min="0" placeholder="es. 120"><small id="t-tp-h"></small></div>
+        </div>
+        <p class="note" id="t-lvnote">Solo con acquisto immediato. Se il prezzo li raggiunge, l'intera posizione viene venduta al primo aggiornamento dei prezzi (circa ogni ora) e il prezzo può differire dal livello. Puoi impostarli anche dopo, dal portafoglio.</p>
         <div class="radio">
           <label><input type="radio" name="mode" value="now" checked><span><strong>Subito</strong> al prezzo di ${esc(SNAP[prices.snapshot] || prices.snapshot)} (${when(prices.updated)})</span></label>
           <label><input type="radio" name="mode" value="next"><span><strong>Al prossimo aggiornamento</strong> dei prezzi (giorni feriali: ogni ora dalle 9:00 alle 22:00 e alla chiusura delle 23:30, ora di Roma). Prezzo non noto in anticipo; l'ordine può essere annullato finché è in coda.</span></label>
@@ -259,6 +301,18 @@ async function viewTrade(q) {
   });
   sug.addEventListener('click', e => { const d = e.target.closest('[data-t]'); if (d) choose(d.dataset.t); });
   $('#t-qty').addEventListener('input', update);
+  const lvHint = () => {
+    for (const [id, hid] of [['#t-sl', '#t-sl-h'], ['#t-tp', '#t-tp-h']]) {
+      const v = parseFloat($(id).value), px = sel ? prices.prices[sel].p : 0;
+      $(hid).textContent = v > 0 && px ? `${sgn((v / px - 1) * 100)}% rispetto al prezzo attuale` : '';
+    }
+  };
+  $('#t-sl').addEventListener('input', lvHint); $('#t-tp').addEventListener('input', lvHint);
+  document.querySelectorAll('#f-trade [name=mode]').forEach(r => r.addEventListener('change', () => {
+    const off = document.querySelector('#f-trade [name=mode]:checked').value === 'next';
+    $('#t-sl').disabled = $('#t-tp').disabled = off;
+    if (off) { $('#t-sl').value = $('#t-tp').value = ''; lvHint(); }
+  }));
   const want = (q.get('t') || '').toUpperCase();
   if (want && prices.prices[want]) choose(want);
 
@@ -268,9 +322,11 @@ async function viewTrade(q) {
   bind('#f-trade', async (d, f, box) => {
     if (!sel) throw new Error('Seleziona un titolo.');
     const qty = parseInt(d.qty, 10);
+    const sl = d.stop_loss || '', tp = d.take_profit || '';
+    if ((sl || tp) && (side !== 'buy' || d.mode !== 'now')) throw new Error('Stop loss e take profit si impostano su un acquisto immediato. Per una posizione già aperta usa il pulsante SL/TP nel portafoglio.');
     const ask = `${side === 'buy' ? 'Comprare' : 'Vendere'} ${qty} ${sel} (${d.mode === 'now' ? 'subito' : 'al prossimo aggiornamento'})? Operazione simulata, denaro virtuale.`;
     if (!confirm(ask)) return;
-    const r = await api('place_order', {ticker: sel, side, qty, mode: d.mode});
+    const r = await api('place_order', {ticker: sel, side, qty, mode: d.mode, stop_loss: sl, take_profit: tp});
     box.innerHTML = msg('ok', r.message);
     setTimeout(() => viewTrade(q), 900);
   });

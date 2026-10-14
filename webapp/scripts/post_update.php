@@ -10,13 +10,14 @@ require_once __DIR__ . '/../src/Trading.php';
 
 try {
     [$done, $rejected] = Trading::processPending();
+    [$stops, $takes] = Trading::checkTriggers();
     $n = Trading::recordEquityAll();
     db()->prepare('DELETE FROM auth_tokens WHERE expires_at < ? OR used_at IS NOT NULL')->execute([gmdate('Y-m-d H:i:s', time() - 86400)]);
     db()->prepare('DELETE FROM rate_events WHERE created_at < ?')->execute([gmdate('Y-m-d H:i:s', time() - 86400)]);
     // account mai confermati dopo 7 giorni: eliminati
     $del = db()->prepare('DELETE FROM users WHERE email_verified_at IS NULL AND created_at < ?');
     $del->execute([gmdate('Y-m-d H:i:s', time() - 7 * 86400)]);
-    echo "OK: ordini eseguiti $done, rifiutati $rejected, equity registrata per $n utenti, account non confermati eliminati " . $del->rowCount() . PHP_EOL;
+    echo "OK: ordini eseguiti $done, rifiutati $rejected, stop loss $stops, take profit $takes, equity registrata per $n utenti, account non confermati eliminati " . $del->rowCount() . PHP_EOL;
 } catch (Throwable $e) {
     fwrite(STDERR, 'ERRORE: ' . $e->getMessage() . PHP_EOL);
     exit(1);

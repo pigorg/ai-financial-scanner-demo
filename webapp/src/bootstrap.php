@@ -33,8 +33,18 @@ function db(): PDO {
             PDO::ATTR_EMULATE_PREPARES => false,
         ]);
         $pdo->exec("SET time_zone = '+00:00'");
+        migrate_schema($pdo);
     }
     return $pdo;
+}
+
+/** Aggiorna le tabelle create con versioni precedenti dello schema (utile senza accesso al terminale). */
+function migrate_schema(PDO $pdo): void {
+    $cols = $pdo->query("SELECT COLUMN_NAME FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'positions'")->fetchAll(PDO::FETCH_COLUMN);
+    if ($cols && !in_array('stop_loss', $cols, true)) {
+        $pdo->exec('ALTER TABLE positions ADD COLUMN stop_loss DECIMAL(18,4) NULL, ADD COLUMN take_profit DECIMAL(18,4) NULL');
+    }
 }
 
 function now_utc(): string { return gmdate('Y-m-d H:i:s'); }

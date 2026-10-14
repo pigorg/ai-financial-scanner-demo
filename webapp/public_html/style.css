@@ -153,3 +153,6 @@ th.ic,td.ic{width:52px;padding:8px}
 .am-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 .am-btns a{display:block;text-align:center;font:600 11px var(--mono);letter-spacing:.08em;color:var(--text);background:#0c150a;border:1px solid var(--line2);border-radius:4px;padding:12px;text-decoration:none}
 .am-btns a.primary{background:var(--cyan);border-color:var(--cyan);color:#021018}
+
+#lvmodal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:40}
+.neg{color:var(--red)}

@@ -44,6 +44,7 @@ try {
         if (!is_array($in)) throw new ApiError('Richiesta non valida.');
     }
     $str = fn(string $k): string => (string)($in[$k] ?? '');
+    $lv = fn(string $k): ?float => (isset($in[$k]) && $in[$k] !== '') ? (float)$in[$k] : null;
 
     switch ($action) {
         // ---- sessione
@@ -90,9 +91,12 @@ try {
             out(['equity' => Trading::equityHistory(Auth::requireUser())]);
         case 'place_order':
             $u = Auth::requireUser();
-            $r = Trading::placeOrder($u, $str('ticker'), $str('side'), (int)($in['qty'] ?? 0), $str('mode') ?: 'now');
+            $r = Trading::placeOrder($u, $str('ticker'), $str('side'), (int)($in['qty'] ?? 0), $str('mode') ?: 'now', $lv('stop_loss'), $lv('take_profit'));
             out(['order' => $r, 'message' => $r['status'] === 'executed'
                 ? 'Ordine eseguito.' : 'Ordine messo in coda: verrà eseguito al prossimo aggiornamento dei prezzi.']);
+        case 'set_levels':
+            Trading::setLevels(Auth::requireUser(), $str('ticker'), $lv('stop_loss'), $lv('take_profit'));
+            out(['message' => 'Livelli salvati.']);
         case 'cancel_order':
             Trading::cancelOrder(Auth::requireUser(), (int)($in['id'] ?? 0));
             out(['message' => 'Ordine annullato.']);

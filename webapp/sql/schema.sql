@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS positions (
   ticker    VARCHAR(20) NOT NULL,
   qty       INT UNSIGNED NOT NULL,
   avg_cost  DECIMAL(18,4) NOT NULL COMMENT 'costo medio per azione, in valuta del conto',
+  stop_loss   DECIMAL(18,4) NULL COMMENT 'livello di prezzo (valuta del titolo): se il prezzo scende fino a qui, vende tutto',
+  take_profit DECIMAL(18,4) NULL COMMENT 'livello di prezzo (valuta del titolo): se il prezzo sale fino a qui, vende tutto',
   PRIMARY KEY (user_id, ticker),
   CONSTRAINT fk_pos_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
