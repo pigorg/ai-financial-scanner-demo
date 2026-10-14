@@ -1,0 +1,76 @@
+.demo-banner.paper{background:#2b2108;border-bottom:2px solid #f2c94c;font-size:13px;font-weight:500}
+.toplink{color:var(--cyan);text-decoration:none}
+.acc-view{padding:24px 28px;min-height:520px}
+.acc-view h2{margin:0 0 6px;font:600 20px var(--mono);letter-spacing:.04em}
+.acc-view h3{margin:26px 0 10px;font:500 12px var(--mono);letter-spacing:.1em;color:var(--cyan)}
+.acc-view p.muted{margin:4px 0 16px}
+
+/* form */
+.authbox{max-width:460px;margin:8px auto}
+.authbox form,.panel form{display:flex;flex-direction:column;gap:12px}
+.fld small{color:var(--muted);font:11px var(--sans)}
+.fld.row2{flex-direction:row;gap:10px}
+.fld.row2>div{flex:1;display:flex;flex-direction:column;gap:5px}
+.checks{display:flex;flex-direction:column;gap:10px;font-size:13px;color:#c5d3de}
+.checks label{display:flex;gap:10px;align-items:flex-start;line-height:1.45}
+.checks input{width:18px;height:18px;flex:none;margin-top:2px;accent-color:var(--cyan)}
+.checks a{color:var(--cyan)}
+.hp{position:absolute;left:-5000px;height:0;overflow:hidden}
+.links{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:14px;font-size:13px}
+.links a{color:var(--cyan);cursor:pointer;text-decoration:none}
+.msg{border-radius:6px;padding:10px 12px;font-size:13px;line-height:1.5;margin-bottom:12px}
+.msg.err{background:#2a0e0c;border:1px solid #7a2a24;color:#ff9b92}
+.msg.ok{background:#0c2214;border:1px solid #1f6a3a;color:#7de8a8}
+.msg.info{background:#14200a;border:1px solid var(--line2);color:#c5d3de}
+button[disabled]{opacity:.5;cursor:wait}
+button.danger{background:#3a0f0c;border-color:#8a2a24;color:#ff9b92}
+button.danger:hover{background:#5a1812}
+button.buy{background:#35e08a;border-color:#35e08a;color:#021018}
+button.sell{background:#ff5a4d;border-color:#ff5a4d;color:#021018}
+button.sm{padding:6px 10px;font-size:10px}
+
+/* KPI e pannelli */
+.acc-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0 8px}
+.acc-kpis .kpi{min-height:96px}
+.acc-kpis .kpi .v{font-size:24px;margin:8px 0 4px}
+.panel{border:1px solid var(--line2);border-radius:8px;padding:18px;background:var(--panel);margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.note{font:11px var(--mono);color:var(--muted);letter-spacing:.03em;line-height:1.6}
+.chip{display:inline-block;padding:2px 8px;border-radius:10px;font:600 10px var(--mono);letter-spacing:.06em;background:#1a2606;color:var(--cyan)}
+.chip.executed{background:#0c2214;color:var(--green)}
+.chip.pending{background:#2b2108;color:var(--amber)}
+.chip.cancelled,.chip.rejected{background:#2a0e0c;color:var(--red)}
+.chip.buy{color:var(--green)}.chip.sell{color:var(--red)}
+.acc-view table td.l{text-align:left}
+.acc-view .table-wrap{max-height:none}
+.empty{padding:28px;text-align:center;color:var(--muted);font-size:13px}
+
+/* opera */
+.quote{display:flex;gap:22px;flex-wrap:wrap;align-items:baseline;margin:10px 0 4px}
+.quote .big{font:700 28px var(--mono)}
+.suggest{border:1px solid var(--line2);border-radius:6px;max-height:240px;overflow:auto;background:var(--panel2);margin-top:4px}
+.suggest div{padding:8px 12px;cursor:pointer;font-size:13px;display:flex;justify-content:space-between;gap:10px}
+.suggest div:hover,.suggest div.act{background:#1a2606}
+.suggest span{color:var(--muted);font:11px var(--mono)}
+.radio{display:flex;flex-direction:column;gap:8px;font-size:13px}
+.radio label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line2);border-radius:6px;padding:10px;cursor:pointer;line-height:1.45}
+.radio input{width:16px;height:16px;margin-top:2px;accent-color:var(--cyan);flex:none}
+.estimate{font:12px var(--mono);line-height:1.8;color:#c5d3de;border:1px dashed var(--line2);border-radius:6px;padding:10px 12px}
+.btnrow{display:flex;gap:10px}
+.btnrow button{flex:1;padding:13px}
+
+/* grafici */
+#eqchart{height:340px}
+.bars .bar{display:grid;grid-template-columns:90px 1fr 70px;gap:10px;align-items:center;margin:7px 0;font:12px var(--mono)}
+.bars .track{background:var(--panel2);height:14px;border-radius:3px;position:relative;overflow:hidden}
+.bars .fill{position:absolute;top:0;bottom:0;border-radius:3px}
+.bars .fill.g{background:var(--green)}.bars .fill.r{background:var(--red)}.bars .fill.c{background:var(--cyan)}
+.bars .mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line2)}
+
+@media(max-width:900px){
+  .acc-view{padding:18px 14px}
+  .acc-kpis{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+  .tabs{overflow-x:auto}
+  .tabs button{white-space:nowrap;padding:14px 12px}
+}

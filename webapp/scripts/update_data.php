@@ -3,6 +3,11 @@
  * Equivalente PHP di update_data.py: scarica i prezzi, calcola i campi dello scanner
  * e scrive public_html/data.json + public_html/hist/*.json.
  * Pensato per il cron di cPanel (solo CLI). Solo indicatori descrittivi: nessuna raccomandazione.
+ *
+ * Uso:  php update_data.php [--snapshot=mid|close]
+ *   mid   = metà giornata: aggiorna SOLO public_html/prices.json (prezzi per il paper trading, S&P 500 + FTSE MIB + cambio EUR/USD)
+ *   close = chiusura: come mid, poi ricalcola anche lo scanner (data.json + hist/)
+ * Senza argomento: sceglie in base all'ora di Roma (prima delle 21:00 = mid, altrimenti close).
  */
 // Solo da cron/terminale: blocca l'esecuzione via web (alcuni host usano php-cgi anche per il cron).
 if (PHP_SAPI !== 'cli' && isset($_SERVER['REQUEST_METHOD'])) { http_response_code(403); exit('CLI only'); }
@@ -254,8 +259,93 @@ function fetch_fundamentals(array $tickers, string $cacheFile): array {
     return $cache;
 }
 
+/** Universo FTSE MIB da tickers_it.txt (formato TICKER|Nome). */
+function load_universe_it(string $root): array {
+    $uni = [];
+    foreach (preg_split('/\R/', (string)@file_get_contents($root . '/tickers_it.txt')) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') continue;
+        [$t, $n] = array_pad(explode('|', $line, 2), 2, '');
+        $uni[] = ['ticker' => strtoupper(trim($t)), 'name' => trim($n)];
+    }
+    return $uni;
+}
+
+/** Ultimo prezzo di ogni ticker (+ valuta e orario) dall'endpoint chart di Yahoo. */
+function fetch_quotes(array $tickers): array {
+    $reqs = [];
+    foreach ($tickers as $t) {
+        $reqs[$t] = 'https://query1.finance.yahoo.com/v8/finance/chart/' . rawurlencode($t) . '?range=5d&interval=1d';
+    }
+    $out = []; $failed = [];
+    $parse = function (string $body): ?array {
+        $m = json_decode($body, true)['chart']['result'][0]['meta'] ?? null;
+        if (!$m || empty($m['regularMarketPrice'])) return null;
+        return ['p' => round((float)$m['regularMarketPrice'], 4), 'c' => strtoupper((string)($m['currency'] ?? 'USD')), 't' => (int)($m['regularMarketTime'] ?? 0)];
+    };
+    foreach (fetch_all($reqs) as $t => [$code, $body]) {
+        $q = $code === 200 ? $parse($body) : null;
+        if ($q) $out[$t] = $q; else $failed[] = $t;
+    }
+    if ($failed) {
+        logm(count($failed) . ' quotazioni fallite, riprovo');
+        sleep(3);
+        $retry = [];
+        foreach ($failed as $t) $retry[$t] = $reqs[$t];
+        foreach (fetch_all($retry, null, 3) as $t => [$code, $body]) {
+            $q = $code === 200 ? $parse($body) : null;
+            if ($q) $out[$t] = $q;
+        }
+    }
+    return $out;
+}
+
+/** Scrive public_html/prices.json (letto dal paper trading). Conserva i nomi dal file precedente. */
+function write_prices(string $file, string $snapshot, array $usUni, array $itUni): bool {
+    $names = [];
+    $prev = is_file($file) ? json_decode((string)file_get_contents($file), true) : null;
+    foreach (($prev['prices'] ?? []) as $t => $x) $names[$t] = $x['n'] ?? '';
+    foreach ($usUni as $u) if ($u['name'] !== '') $names[$u['ticker']] = $u['name'];
+    foreach ($itUni as $u) if ($u['name'] !== '') $names[$u['ticker']] = $u['name'];
+
+    $market = [];
+    foreach ($usUni as $u) $market[$u['ticker']] = 'US';
+    foreach ($itUni as $u) $market[$u['ticker']] = 'IT';
+
+    $quotes = fetch_quotes(array_merge(array_keys($market), ['EURUSD=X']));
+    $fx = $quotes['EURUSD=X']['p'] ?? null;
+    unset($quotes['EURUSD=X']);
+    if (!$fx || count($quotes) < 100) {
+        logm('Prezzi insufficienti (' . count($quotes) . ') o cambio mancante: prices.json non aggiornato');
+        return false;
+    }
+    $prices = [];
+    foreach ($quotes as $t => $q) {
+        $prices[$t] = ['p' => $q['p'], 'c' => $q['c'], 'm' => $market[$t], 'n' => $names[$t] ?? '', 't' => $q['t']];
+    }
+    ksort($prices);
+    $payload = ['snapshot' => $snapshot, 'updated' => gmdate('Y-m-d\TH:i:sP'), 'fx' => ['EURUSD' => $fx], 'count' => count($prices), 'prices' => $prices];
+    $tmp = $file . '.tmp';
+    file_put_contents($tmp, json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    rename($tmp, $file);
+    logm("prices.json: $snapshot, " . count($prices) . " titoli, EURUSD $fx");
+    return true;
+}
+
 // ---------------------------------------------------------------- main
+$snapshot = null;
+foreach ($argv ?? [] as $a) if (preg_match('/^--snapshot=(mid|close)$/', $a, $m)) $snapshot = $m[1];
+if ($snapshot === null) {
+    $romeHour = (int)(new DateTime('now', new DateTimeZone('Europe/Rome')))->format('G');
+    $snapshot = $romeHour < 21 ? 'mid' : 'close';
+}
+logm("Snapshot: $snapshot");
+
 $uni = load_universe($ROOT);
+$uniIt = load_universe_it($ROOT);
+if (!write_prices($PUBLIC . '/prices.json', $snapshot, $uni, $uniIt)) exit(1);
+if ($snapshot === 'mid') { echo 'OK: prices.json (mid)' . PHP_EOL; exit(0); }
+
 $meta = [];
 foreach ($uni as $u) $meta[$u['ticker']] = $u;
 $tickers = array_keys($meta);

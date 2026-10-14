@@ -224,3 +224,7 @@ reports/
 
 webapp/public_html/api/config.php
 scripts/fund_cache.json
+
+# Configurazione segreta del server (SMTP, database)
+webapp/config/*.php
+!webapp/config/*.example.php

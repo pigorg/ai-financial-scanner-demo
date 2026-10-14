@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Trading – AI Financial Scanner Demo</title>
+<meta name="description" content="Simulatore di paper trading con denaro virtuale: acquista e vendi azioni USA e italiane senza rischiare soldi veri. Versione demo.">
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/account/account.css">
+</head>
+<body>
+<div class="demo-banner paper" role="note"><strong>PAPER TRADING – SIMULAZIONE CON DENARO VIRTUALE.</strong> Nessun denaro reale, nessun premio, nessuna esecuzione sui mercati. Servizio demo: può contenere errori e i prezzi possono essere non corretti o non aggiornati. Non è consulenza finanziaria e i risultati simulati non garantiscono risultati reali.</div>
+
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="44" height="44"><rect width="40" height="40" rx="8" fill="#0c150a" stroke="#2c4119"/><path d="M8 28 L15 18 L21 23 L32 10" fill="none" stroke="#b6ff00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="10" r="2.5" fill="#b6ff00"/></svg>
+      </div>
+      <div>
+        <h1>PAPER <span>/</span> TRADING</h1>
+        <div class="sub">AI Financial Scanner Demo · denaro virtuale</div>
+      </div>
+    </div>
+    <div class="status">
+      <div><b><a href="/" class="toplink">← SCANNER</a></b></div>
+      <div id="who"></div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="nav" hidden>
+    <button data-r="portfolio">PORTAFOGLIO</button>
+    <button data-r="trade">OPERA</button>
+    <button data-r="orders">ORDINI</button>
+    <button data-r="charts">GRAFICI</button>
+    <button data-r="settings">IMPOSTAZIONI</button>
+  </nav>
+
+  <main id="view" class="acc-view" aria-live="polite"><p class="muted">Caricamento…</p></main>
+
+  <p class="disclaimer"><strong>Disclaimer.</strong> Simulatore di paper trading a scopo dimostrativo: il denaro è virtuale, non viene eseguita alcuna operazione sui mercati reali e non esistono premi o vincite. I prezzi provengono da fonti pubbliche senza garanzia di accuratezza o tempestività e sono aggiornati due volte al giorno (metà giornata e chiusura). Il servizio, gli account e i dati possono essere sospesi o eliminati in qualsiasi momento. Nessuna consulenza o raccomandazione finanziaria.</p>
+  <p class="legal-links"><a href="/termini.html">Termini e condizioni</a> · <a href="/privacy.html">Privacy e cookie</a> · <a href="#" data-consent-open>Gestisci cookie</a></p>
+</div>
+
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/consent.js"></script>
+<script src="/account/account.js"></script>
+</body>
+</html>

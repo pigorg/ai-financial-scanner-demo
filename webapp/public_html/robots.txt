@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /hist/
+Disallow: /api.php
 
 Sitemap: https://ai-financial-scanner-demo.alessandrognola.com/sitemap.xml

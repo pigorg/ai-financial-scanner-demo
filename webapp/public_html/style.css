@@ -109,3 +109,26 @@ tbody tr:hover{background:#141d08}
 th.ic,td.ic{width:52px;padding:8px}
 .chartbtn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border-radius:6px;color:var(--cyan);background:#1a2606}
 .chartbtn:hover{background:var(--cyan);color:#021018;border-color:var(--cyan)}
+
+/* banner cookie */
+#cookie-banner{position:fixed;left:12px;right:12px;bottom:12px;z-index:50;max-width:760px;margin:0 auto;background:#142010;border:1px solid var(--line2);border-radius:10px;padding:16px 18px;box-shadow:0 10px 30px #000c;font-size:13px;line-height:1.55}
+#cookie-banner a{color:var(--cyan)}
+#cookie-banner .btns{grid-template-columns:1fr 1fr;margin:12px 0 0}
+
+
+/* pagine legali */
+.legal{max-width:860px;margin:0 auto;padding:28px 26px 40px;line-height:1.65;color:#c5d3de}
+.legal h1{font-size:22px;margin:0 0 4px}
+.legal h2{margin:28px 0 8px;font:600 15px var(--mono);letter-spacing:.04em;color:var(--cyan)}
+.legal p,.legal li{font-size:14px}
+.legal a{color:var(--cyan)}
+.legal table{margin:10px 0}
+.legal td,.legal th{font:13px var(--sans);text-align:left;padding:8px 10px;white-space:normal;cursor:default}
+.legal .todo{background:#2b2108;color:#f2cc60;padding:1px 6px;border-radius:3px}
+.legal .upd{font:11px var(--mono);color:var(--muted)}
+.legal-links{margin:0;padding:12px 26px;text-align:center;font:11px var(--mono);color:var(--muted);border-top:1px solid var(--line)}
+.legal-links a{color:var(--muted)}
+.legal-links a:hover{color:var(--cyan)}
+
+.tabs .tablink{margin-left:auto;align-self:center;font:600 11px var(--mono);letter-spacing:.08em;color:#021018;background:var(--cyan);border-radius:4px;padding:9px 14px;text-decoration:none}
+.tabs .tablink:hover{filter:brightness(1.1)}

@@ -1,0 +1,39 @@
+A2A.MI|A2A
+AMP.MI|Amplifon
+AZM.MI|Azimut
+BGN.MI|Banca Generali
+BMED.MI|Banca Mediolanum
+BAMI.MI|Banco BPM
+BPE.MI|BPER Banca
+BC.MI|Brunello Cucinelli
+BZU.MI|Buzzi
+CPR.MI|Campari
+DIA.MI|DiaSorin
+ENEL.MI|Enel
+ENI.MI|Eni
+RACE.MI|Ferrari
+FBK.MI|FinecoBank
+G.MI|Generali
+HER.MI|Hera
+INW.MI|Inwit
+ISP.MI|Intesa Sanpaolo
+IVG.MI|Iveco Group
+LDO.MI|Leonardo
+LTMC.MI|Lottomatica
+MB.MI|Mediobanca
+MONC.MI|Moncler
+BMPS.MI|Banca Monte dei Paschi
+NEXI.MI|Nexi
+PIRC.MI|Pirelli
+PST.MI|Poste Italiane
+PRY.MI|Prysmian
+REC.MI|Recordati
+SPM.MI|Saipem
+SRG.MI|Snam
+STLAM.MI|Stellantis
+STMMI.MI|STMicroelectronics
+TIT.MI|Telecom Italia
+TEN.MI|Tenaris
+TRN.MI|Terna
+UCG.MI|UniCredit
+UNI.MI|Unipol
