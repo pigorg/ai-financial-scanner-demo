@@ -6,7 +6,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '
 const TZ = 'Europe/Rome';
 const PRIVATE = ['portfolio', 'trade', 'orders', 'charts', 'settings'];
 const PUBLIC = ['login', 'register', 'forgot', 'reset', 'verify', 'resend'];
-const SNAP = {mid: 'metà giornata', close: 'chiusura'};
+const SNAP = {mid: 'ultimo aggiornamento intraday', close: 'chiusura'};
 
 let csrf = '', user = null, prices = null, eqChart = null;
 
@@ -222,7 +222,7 @@ async function viewTrade(q) {
         <label class="fld">Quantità (azioni)<input id="t-qty" name="qty" type="number" min="1" step="1" value="1" required></label>
         <div class="radio">
           <label><input type="radio" name="mode" value="now" checked><span><strong>Subito</strong> al prezzo di ${esc(SNAP[prices.snapshot] || prices.snapshot)} (${when(prices.updated)})</span></label>
-          <label><input type="radio" name="mode" value="next"><span><strong>Al prossimo aggiornamento</strong> dei prezzi (giorni feriali, circa 18:30 metà giornata e 23:30 chiusura, ora di Roma). Prezzo non noto in anticipo; l'ordine può essere annullato finché è in coda.</span></label>
+          <label><input type="radio" name="mode" value="next"><span><strong>Al prossimo aggiornamento</strong> dei prezzi (giorni feriali: ogni ora dalle 9:00 alle 22:00 e alla chiusura delle 23:30, ora di Roma). Prezzo non noto in anticipo; l'ordine può essere annullato finché è in coda.</span></label>
         </div>
         <div id="t-est" class="estimate">Seleziona un titolo.</div>
         <div class="btnrow"><button class="buy" type="submit" data-side="buy">COMPRA</button><button class="sell" type="submit" data-side="sell">VENDI</button></div>

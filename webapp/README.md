@@ -32,10 +32,10 @@ Struttura aggiuntiva (tutto FUORI da `public_html`, tranne le pagine pubbliche):
 `php webapp/scripts/admin.php list | stats | suspend <utente> | unsuspend <utente> | delete <utente> | verify <utente>`
 
 ## Cron su cPanel (PHP)
-Due aggiornamenti per giorno feriale (ora del server = ora di Roma; adatta l'orario se il server è in UTC):
+Aggiornamento orario nei giorni feriali + chiusura (ora del server = ora di Roma; adatta se il server è in UTC):
 
-    30 18 * * 1-5 PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=mid   && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_mid.log 2>&1
-    30 23 * * 1-5 PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=close && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_close.log 2>&1
+    0 9-22 * * 1-5 PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=mid   && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_mid.log 2>&1
+    30 23  * * 1-5 PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=close && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_close.log 2>&1
 
 (`PHP` = percorso di php, vedi sotto.) `mid` aggiorna solo `prices.json` (pochi secondi); `close` ricalcola anche lo scanner (~1-2 minuti).
 `post_update.php` esegue gli ordini in coda, registra il valore dei portafogli e ripulisce token/account non confermati.

@@ -258,7 +258,7 @@ final class Trading {
     }
 
     public static function equityHistory(array $user): array {
-        $st = db()->prepare('SELECT ts, equity, cash FROM equity_history WHERE user_id = ? ORDER BY ts LIMIT 2000');
+        $st = db()->prepare('SELECT ts, equity, cash FROM (SELECT ts, equity, cash FROM equity_history WHERE user_id = ? ORDER BY ts DESC LIMIT 2000) t ORDER BY ts');
         $st->execute([$user['id']]);
         return $st->fetchAll();
     }
