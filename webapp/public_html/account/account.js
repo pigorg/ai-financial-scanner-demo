@@ -262,7 +262,8 @@ async function viewTrade(q) {
   const want = (q.get('t') || '').toUpperCase();
   if (want && prices.prices[want]) choose(want);
 
-  let side = 'buy';
+  let side = q.get('side') === 'sell' ? 'sell' : 'buy';
+  document.querySelector(`#f-trade [data-side="${side}"]`)?.classList.add('pref');
   document.querySelectorAll('#f-trade [data-side]').forEach(b => b.addEventListener('click', () => { side = b.dataset.side; }));
   bind('#f-trade', async (d, f, box) => {
     if (!sel) throw new Error('Seleziona un titolo.');

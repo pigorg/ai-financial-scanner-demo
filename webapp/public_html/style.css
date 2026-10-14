@@ -139,3 +139,17 @@ th.ic,td.ic{width:52px;padding:8px}
 .papcta strong{color:var(--cyan)}
 .papcta span{color:var(--cyan);font:600 11px var(--mono);letter-spacing:.06em;margin-left:6px;white-space:nowrap}
 .papcta:hover{background:#1a2c0d}
+
+.tbtns{display:inline-flex;gap:4px;margin-left:10px;vertical-align:middle}
+.tbtn{padding:4px 7px;font:700 9px var(--mono);letter-spacing:.04em;border-radius:3px;border:1px solid var(--line2);background:transparent;cursor:pointer}
+.tbtn.buy{color:var(--green);border-color:#1f6a3a}.tbtn.buy:hover{background:var(--green);color:#021018;border-color:var(--green)}
+.tbtn.sell{color:var(--red);border-color:#7a2a24}.tbtn.sell:hover{background:var(--red);color:#021018;border-color:var(--red)}
+#authmodal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:40}
+#authmodal[hidden]{display:none}
+.am-box{width:min(440px,92vw)}
+.am-body{padding:18px 18px 20px;font-size:14px;line-height:1.55;color:#c5d3de}
+.am-body p{margin:0 0 10px}
+.am-note{font-size:12px;color:var(--muted)}
+.am-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.am-btns a{display:block;text-align:center;font:600 11px var(--mono);letter-spacing:.08em;color:var(--text);background:#0c150a;border:1px solid var(--line2);border-radius:4px;padding:12px;text-decoration:none}
+.am-btns a.primary{background:var(--cyan);border-color:var(--cyan);color:#021018}

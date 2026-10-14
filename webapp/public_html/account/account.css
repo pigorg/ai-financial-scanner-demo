@@ -74,3 +74,5 @@ button.sm{padding:6px 10px;font-size:10px}
   .tabs{overflow-x:auto}
   .tabs button{white-space:nowrap;padding:14px 12px}
 }
+
+.btnrow button.pref{box-shadow:0 0 0 2px #fff}

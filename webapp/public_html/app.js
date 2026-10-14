@@ -85,7 +85,8 @@ function render() {
   $('tbl').tBodies[0].innerHTML = shown.map(r => `<tr><td class="ic"><button class="chartbtn" data-t="${esc(r.ticker)}" title="Apri il grafico di ${esc(r.ticker)}" aria-label="Apri il grafico di ${esc(r.ticker)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></button></td>` + COLS.map(k => {
     const v = r[k];
     const cls = [TEXT_COLS.has(k) ? 'l' : '', k === 'ticker' ? 'tk' : '', k === 'company' ? 'co' : '', cellClass(k, v)].join(' ');
-    return `<td class="${cls}">${fmt(k, v)}</td>`;
+    const tb = k === 'ticker' ? `<span class="tbtns"><button class="tbtn buy" data-act="buy" data-t="${esc(r.ticker)}" title="Acquista ${esc(r.ticker)} nel paper trading">ACQUISTA</button><button class="tbtn sell" data-act="sell" data-t="${esc(r.ticker)}" title="Vendi ${esc(r.ticker)} nel paper trading">VENDI</button></span>` : '';
+    return `<td class="${cls}">${fmt(k, v)}${tb}</td>`;
   }).join('') + '</tr>').join('');
   renderHead();
 }
@@ -202,6 +203,26 @@ async function openChart(t) {
   chart.timeScale().setVisibleLogicalRange({from: Math.max(0, bars.length - 252), to: bars.length + 2});
 }
 $('tbl').tBodies[0].addEventListener('click', e => { const b = e.target.closest('.chartbtn'); if (b) openChart(b.dataset.t); });
+
+// Acquista / Vendi: se loggato porta su Opera con il ticker, altrimenti avvisa di accedere
+async function isLoggedIn() {
+  try {
+    const r = await fetch('/api.php?action=me', {credentials: 'same-origin', cache: 'no-store'});
+    const j = await r.json();
+    return !!(j.ok && j.user);
+  } catch (e) { return false; }
+}
+$('tbl').tBodies[0].addEventListener('click', async e => {
+  const b = e.target.closest('.tbtn'); if (!b) return;
+  const t = b.dataset.t, act = b.dataset.act;
+  if (await isLoggedIn()) { location.href = '/account/#/trade?t=' + encodeURIComponent(t) + '&side=' + act; return; }
+  $('am-ticker').textContent = t;
+  $('am-act').textContent = act === 'buy' ? 'acquistare' : 'vendere';
+  $('authmodal').hidden = false;
+});
+$('am-close').addEventListener('click', () => { $('authmodal').hidden = true; });
+$('authmodal').addEventListener('click', e => { if (e.target === $('authmodal')) $('authmodal').hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('authmodal').hidden = true; });
 $('m-close').onclick = () => $('modal').hidden = true;
 $('modal').addEventListener('click', e => { if (e.target.id === 'modal') $('modal').hidden = true; });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') $('modal').hidden = true; });
