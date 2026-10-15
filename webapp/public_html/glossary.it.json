@@ -13,7 +13,7 @@
  },
  "price": {
   "label": "Prezzo",
-  "text": "Ultimo prezzo di chiusura disponibile, in dollari, corretto per split e dividendi."
+  "text": "Ultimo prezzo disponibile, in dollari, corretto per split e dividendi: l'ultima chiusura oppure l'ultima quotazione mentre il mercato è aperto."
  },
  "perf_1m": {
   "label": "Perf 1M %",
@@ -121,6 +121,6 @@
  },
  "last_date": {
   "label": "Ultimo aggiornamento",
-  "text": "Data dell'ultima seduta di borsa inclusa nei dati di questo titolo (chiusura di fine giornata). L'orario accanto indica quando i dati dello scanner sono stati aggiornati l'ultima volta (ora di Roma)."
+  "text": "Data dell'ultima seduta di borsa inclusa nei dati di questo titolo. L'orario accanto indica quando i dati dello scanner sono stati aggiornati l'ultima volta (ora di Roma)."
  }
 }

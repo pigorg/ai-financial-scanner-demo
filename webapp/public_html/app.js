@@ -17,7 +17,7 @@ const IT = I18N.lang === 'it';
 const LOC = IT ? 'it-IT' : 'en-GB';
 I18N.add({
   'Improving': 'Migliora', 'Steady': 'Stabile', 'Weakening': 'Peggiora', 'Loss': 'Perdita',
-  'STOCKS': 'TITOLI', 'ROME': 'ROMA', 'UPDATED': 'AGGIORNATO',
+  'STOCKS': 'TITOLI', 'LATEST SESSION': 'ULTIMA SEDUTA', 'ROME': 'ROMA', 'UPDATED': 'AGGIORNATO',
   'Open the chart of {t}': 'Apri il grafico di {t}',
   'Buy {t} in paper trading': 'Acquista {t} nel paper trading', 'Sell {t} in paper trading': 'Vendi {t} nel paper trading',
   'BUY': 'ACQUISTA', 'SELL': 'VENDI', 'buy': 'acquistare', 'sell': 'vendere',
@@ -122,7 +122,7 @@ function renderKpis() {
     card(T('IMPROVING'), imp, `${T('STATE = IMPROVING')} · ${p(imp)}`) +
     card('AVWAP 4/4', av4, T('PRICE ABOVE ALL 4 AVWAPS')) +
     card('GROWTH', gro, 'EPS YoY ≥ 25 · SALES YoY ≥ 20') +
-    card('MARKET DATE', d, 'EOD', 'sm') +
+    card('MARKET DATE', d, T('LATEST SESSION'), 'sm') +
     card('UNIVERSE', n.toLocaleString(LOC), T('STOCKS SCANNED'));
 }
 

@@ -13,7 +13,7 @@
  },
  "price": {
   "label": "Price",
-  "text": "Latest available closing price, in US dollars, adjusted for splits and dividends."
+  "text": "Latest available price, in US dollars, adjusted for splits and dividends: the last close, or the latest quote while the market is open."
  },
  "perf_1m": {
   "label": "Perf 1M %",
@@ -121,6 +121,6 @@
  },
  "last_date": {
   "label": "Last update",
-  "text": "Date of the latest trading session included in the data for this stock (end-of-day close). The time next to it is when the scanner data was last refreshed (Rome time)."
+  "text": "Date of the latest trading session included in the data for this stock. The time next to it is when the scanner data was last refreshed (Rome time)."
  }
 }

@@ -31,7 +31,7 @@
       <div id="pap-top"><a class="papbtn" href="/account/" data-i="papbtn">PAPER TRADING · LOG IN / SIGN UP</a></div>
       <div><b><a href="/" style="color: #2fe08a;text-decoration:none;">HOME</a></b></div>
       <div><b><a href="mailto:informazioni@istore-lab.com" style="color: #2fe08a;text-decoration:none;" data-i="contact">CONTACT</a></b></div>
-      <div><span class="dot"></span><b>SYSTEM ONLINE</b><small>DATA FEED: EOD</small></div>
+      <div><span class="dot"></span><b>SYSTEM ONLINE</b><small>DATA FEED: 4×/DAY</small></div>
       <div><b id="clock">--:--:-- ROME</b><small id="mdate">--/--/----</small></div>
     </div>
   </header>
@@ -124,7 +124,7 @@
   <div class="modal-box">
     <div class="mhead"><span id="m-title"></span><button id="m-close">×</button></div>
     <div id="chart"></div>
-    <div class="legend"><span class="l1">● SMA50</span> <span class="l2">● SMA200</span> <span data-i="legend">Daily end-of-day data</span></div>
+    <div class="legend"><span class="l1">● SMA50</span> <span class="l2">● SMA200</span> <span data-i="legend">Daily data (the latest bar may be in progress)</span></div>
   </div>
 </div>
 <div id="tip" hidden></div>
@@ -150,7 +150,7 @@ I18N.applyStatic({
   am_title: 'Accesso richiesto',
   am_p1: 'Per <strong id="am-act">operare su</strong> <strong id="am-ticker"></strong> devi <strong>accedere</strong> o creare un account di paper trading.',
   am_note: 'È una simulazione con <strong>denaro virtuale</strong>: gratis, nessun denaro reale, nessun premio.',
-  am_login: 'ACCEDI', am_reg: 'CREA ACCOUNT', legend: 'Dati giornalieri di fine seduta'
+  am_login: 'ACCEDI', am_reg: 'CREA ACCOUNT', legend: "Dati giornalieri (l'ultima barra può essere in corso)"
 });
 I18N.wire();
 </script>

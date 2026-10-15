@@ -32,12 +32,11 @@ Struttura aggiuntiva (tutto FUORI da `public_html`, tranne le pagine pubbliche):
 `php webapp/scripts/admin.php list | stats | suspend <utente> | unsuspend <utente> | delete <utente> | verify <utente>`
 
 ## Cron su cPanel (PHP)
-Quattro aggiornamenti nei giorni feriali: **9:00, 12:00, 16:00, 21:00** (ora del server = ora di Roma; adatta se il server è in UTC):
+Quattro aggiornamenti nei giorni feriali: **9:00, 12:00, 16:00, 21:00** (ora del server = ora di Roma; adatta se il server è in UTC). Ogni giro aggiorna tutto: prezzi del paper trading e scanner.
 
-    0 9 * * 1-5        PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=mid --scanner && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_morning.log 2>&1
-    0 12,16,21 * * 1-5 PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=mid && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_mid.log 2>&1
+    0 9,12,16,21 * * 1-5  PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=mid --scanner && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update.log 2>&1
 
-(`PHP` = percorso di php, vedi sotto.) Alle 9:00 si aggiorna anche lo scanner (`--scanner`: `data.json`, `hist/`, ~2 minuti, con l'ultima chiusura completa USA); alle 12, 16 e 21 solo `prices.json` (pochi secondi), usato dal paper trading.
+(`PHP` = percorso di php, vedi sotto.) Dura circa 2 minuti: `prices.json` (paper trading) e poi `data.json` + `hist/` (scanner). Durante la seduta USA (15:30-22:00 ora di Roma) l'ultima barra giornaliera è quella in corso, quindi il prezzo è l'ultima quotazione disponibile.
 `post_update.php` esegue gli ordini in coda, scatta stop loss / take profit, registra il valore dei portafogli e ripulisce token/account non confermati.
 
 ### Cron originale (solo scanner)
