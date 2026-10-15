@@ -1,17 +1,17 @@
-{{site_name}} - Conferma il tuo indirizzo email
+{{site_name}} - Confirm your email address
 
-Ciao {{username}},
+Hi {{username}},
 
-grazie per esserti registrato. Conferma il tuo indirizzo email per attivare l'account
-aprendo questo link:
+thanks for signing up. Confirm your email address to activate your account
+by opening this link:
 
 {{verify_link}}
 
-Il link e' valido per {{expires_hours}} ore.
+The link is valid for {{expires_hours}} hours.
 
-Non ti sei registrato tu? Ignora questa email: senza conferma l'account verra' eliminato.
+Did not sign up? Ignore this email: without confirmation the account will be deleted.
 
 --
-Servizio demo di paper trading. Il denaro e' virtuale e non ha valore reale.
-I dati possono contenere errori o non essere aggiornati. Non e' consulenza finanziaria.
-Messaggio automatico, non rispondere. Contatti: {{reply_to}} - {{site_url}}
+Paper trading demo. The money is virtual and has no real value.
+Data may contain errors or be out of date. This is not financial advice.
+Automated message, please do not reply. Contact: {{reply_to}} - {{site_url}}

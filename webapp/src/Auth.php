@@ -29,7 +29,7 @@ final class Auth {
     public static function checkCsrf(): void {
         $sent = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
         if ($sent === '' || !hash_equals(self::csrfToken(), $sent)) {
-            throw new ApiError('Sessione scaduta: ricarica la pagina e riprova.', 403);
+            throw new ApiError(tr('Session expired: reload the page and try again.'), 403);
         }
     }
 
@@ -49,7 +49,7 @@ final class Auth {
 
     public static function requireUser(): array {
         $u = self::user();
-        if (!$u) throw new ApiError('Devi effettuare l\'accesso.', 401);
+        if (!$u) throw new ApiError(tr('You need to log in.'), 401);
         return $u;
     }
 
@@ -80,7 +80,7 @@ final class Auth {
 
     private static function limit(string $kind, string $ident, int $max, int $windowSec): void {
         if (self::tooMany($kind, $ident, $max, $windowSec)) {
-            throw new ApiError('Troppi tentativi. Riprova tra qualche minuto.', 429);
+            throw new ApiError(tr('Too many attempts. Please try again in a few minutes.'), 429);
         }
     }
 
@@ -89,10 +89,10 @@ final class Auth {
 
     public static function checkPassword(string $p): void {
         $len = strlen($p);
-        if ($len < 8) throw new ApiError('La password deve avere almeno 8 caratteri.');
-        if ($len > 72) throw new ApiError('La password può avere al massimo 72 caratteri.');
+        if ($len < 8) throw new ApiError(tr('The password must be at least 8 characters long.'));
+        if ($len > 72) throw new ApiError(tr('The password can be at most 72 characters long.'));
         if (!preg_match('/[A-Za-z]/', $p) || !preg_match('/\d/', $p)) {
-            throw new ApiError('La password deve contenere almeno una lettera e un numero.');
+            throw new ApiError(tr('The password must contain at least one letter and one number.'));
         }
     }
 
@@ -115,8 +115,8 @@ final class Auth {
 
     private static function sendVerification(array $user): bool {
         $tok = self::createToken((int)$user['id'], 'verify', self::VERIFY_TTL_MIN);
-        $link = Mailer::siteUrl() . '/account/#/verify?token=' . $tok;
-        return Mailer::send($user['email'], 'Conferma il tuo indirizzo email', 'verify_email', [
+        $link = Mailer::siteUrl() . '/account/' . (I18n::$lang === 'it' ? '?lang=it' : '') . '#/verify?token=' . $tok;
+        return Mailer::send($user['email'], tr('Confirm your email address'), 'verify_email', [
             'username' => $user['username'], 'verify_link' => $link,
             'expires_hours' => (string)(self::VERIFY_TTL_MIN / 60),
         ]);
@@ -124,7 +124,7 @@ final class Auth {
 
     // ------------------------------------------------------------ azioni
     public static function register(array $in): string {
-        if (!empty($in['website'])) throw new ApiError('Richiesta non valida.');   // honeypot anti-bot
+        if (!empty($in['website'])) throw new ApiError(tr('Invalid request.'));   // honeypot anti-bot
         $ip = client_ip();
         self::limit('register', $ip, 5, 3600);
 
@@ -134,15 +134,15 @@ final class Auth {
         $currency = strtoupper((string)($in['currency'] ?? 'EUR'));
         $budget = (int)($in['budget'] ?? 10000);
 
-        if (!self::validUsername($username)) throw new ApiError('Username non valido: 3-30 caratteri tra lettere, numeri e underscore.');
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) throw new ApiError('Indirizzo email non valido.');
+        if (!self::validUsername($username)) throw new ApiError(tr('Invalid username: 3-30 characters, letters, numbers and underscore only.'));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) throw new ApiError(tr('Invalid email address.'));
         self::checkPassword($password);
-        if (!in_array($currency, ['EUR', 'USD'], true)) throw new ApiError('Valuta non valida.');
+        if (!in_array($currency, ['EUR', 'USD'], true)) throw new ApiError(tr('Invalid currency.'));
         if ($budget < self::BUDGET_MIN || $budget > self::BUDGET_MAX) {
-            throw new ApiError('Il budget deve essere tra ' . self::BUDGET_MIN . ' e ' . self::BUDGET_MAX . '.');
+            throw new ApiError(tr('The budget must be between {min} and {max}.', ['min' => self::BUDGET_MIN, 'max' => self::BUDGET_MAX]));
         }
         if (empty($in['accept_terms']) || empty($in['accept_age'])) {
-            throw new ApiError('Devi accettare termini e privacy e confermare di avere almeno 18 anni.');
+            throw new ApiError(tr('You must accept the terms and privacy policy and confirm you are at least 18 years old.'));
         }
 
         self::hit('register', $ip);
@@ -150,8 +150,8 @@ final class Auth {
         $st = db()->prepare('SELECT username, email FROM users WHERE username = ? OR email = ?');
         $st->execute([$username, $email]);
         foreach ($st->fetchAll() as $r) {
-            if (strcasecmp($r['email'], $email) === 0) throw new ApiError('Esiste già un account con questa email.');
-            throw new ApiError('Username già in uso.');
+            if (strcasecmp($r['email'], $email) === 0) throw new ApiError(tr('An account with this email already exists.'));
+            throw new ApiError(tr('Username already taken.'));
         }
 
         $now = now_utc();
@@ -168,19 +168,19 @@ final class Auth {
             $pdo->commit();
         } catch (PDOException $e) {
             $pdo->rollBack();
-            if ($e->getCode() === '23000') throw new ApiError('Username o email già registrati.');
+            if ($e->getCode() === '23000') throw new ApiError(tr('Username or email already registered.'));
             throw $e;
         }
 
         $user = ['id' => $id, 'username' => $username, 'email' => $email];
         return self::sendVerification($user)
-            ? 'Account creato. Ti abbiamo inviato un\'email: clicca sul link per attivarlo.'
-            : 'Account creato, ma non siamo riusciti a inviare l\'email di conferma. Usa «Reinvia email» nella pagina di accesso.';
+            ? tr('Account created. We sent you an email: click the link to activate it.')
+            : tr('Account created, but we could not send the confirmation email. Use "Didn\'t get the confirmation email?" on the log in page.');
     }
 
     public static function verifyEmail(string $token): void {
         $t = self::findToken($token, 'verify');
-        if (!$t) throw new ApiError('Link non valido o scaduto. Richiedi una nuova email di conferma.');
+        if (!$t) throw new ApiError(tr('Invalid or expired link. Request a new confirmation email.'));
         $pdo = db();
         $pdo->beginTransaction();
         $pdo->prepare('UPDATE users SET email_verified_at = ? WHERE id = ? AND email_verified_at IS NULL')->execute([now_utc(), $t['user_id']]);
@@ -219,11 +219,11 @@ final class Auth {
         if (!$ok) {
             self::hit('login_ip', $ip);
             self::hit('login_user', $key);
-            throw new ApiError('Credenziali non corrette.', 401);
+            throw new ApiError(tr('Incorrect credentials.'), 401);
         }
-        if ($u['status'] !== 'active') throw new ApiError('Account sospeso. Contattaci per informazioni.', 403);
+        if ($u['status'] !== 'active') throw new ApiError(tr('Account suspended. Contact us for information.'), 403);
         if ($u['email_verified_at'] === null) {
-            throw new ApiError('Devi prima confermare l\'email: controlla la posta (anche lo spam) o richiedi un nuovo link.', 403);
+            throw new ApiError(tr('Please confirm your email first: check your inbox (and spam) or request a new link.'), 403);
         }
         if (password_needs_rehash($u['password_hash'], PASSWORD_DEFAULT)) {
             db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?')->execute([password_hash($password, PASSWORD_DEFAULT), $u['id']]);
@@ -245,9 +245,9 @@ final class Auth {
             self::hit('forgot_e', $email);
             $ttl = Mailer::resetTtlMinutes();
             $tok = self::createToken((int)$u['id'], 'reset', $ttl);
-            Mailer::send($u['email'], 'Recupero password', 'password_reset', [
+            Mailer::send($u['email'], tr('Reset your password'), 'password_reset', [
                 'username' => $u['username'],
-                'reset_link' => Mailer::siteUrl() . '/account/#/reset?token=' . $tok,
+                'reset_link' => Mailer::siteUrl() . '/account/' . (I18n::$lang === 'it' ? '?lang=it' : '') . '#/reset?token=' . $tok,
                 'expires_minutes' => (string)$ttl,
             ]);
         }
@@ -259,7 +259,7 @@ final class Auth {
         self::hit('reset', client_ip());
         self::checkPassword($password);
         $t = self::findToken($token, 'reset');
-        if (!$t) throw new ApiError('Link non valido o scaduto. Richiedi un nuovo recupero password.');
+        if (!$t) throw new ApiError(tr('Invalid or expired link. Request a new password reset.'));
         $pdo = db();
         $pdo->beginTransaction();
         // il reset dimostra anche il possesso dell'email
@@ -271,14 +271,14 @@ final class Auth {
     }
 
     public static function changePassword(array $user, string $current, string $new): void {
-        if (!password_verify($current, $user['password_hash'])) throw new ApiError('La password attuale non è corretta.', 403);
+        if (!password_verify($current, $user['password_hash'])) throw new ApiError(tr('The current password is not correct.'), 403);
         self::checkPassword($new);
         db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?')->execute([password_hash($new, PASSWORD_DEFAULT), $user['id']]);
     }
 
     /** Cancellazione definitiva: elimina utente e, a cascata, ordini, posizioni, storico e token. */
     public static function deleteAccount(array $user, string $password): void {
-        if (!password_verify($password, $user['password_hash'])) throw new ApiError('Password non corretta.', 403);
+        if (!password_verify($password, $user['password_hash'])) throw new ApiError(tr('Incorrect password.'), 403);
         db()->prepare('DELETE FROM users WHERE id = ?')->execute([$user['id']]);
         self::logout();
     }

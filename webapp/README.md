@@ -58,3 +58,11 @@ Dura circa 1 minuto. Cron Jobs → ogni giorno feriale alle 23:30 (dopo la chius
 ## Modificare i campi
 Le colonne vanno aggiornate in tre punti: il calcolo (`compute_row` in Python, `compute_row` in PHP),
 `COLS`/`VIEWS` in `app.js` e la definizione in `glossary.json` (usata dall'icona ⓘ).
+
+## Struttura del sito e lingue
+- `/` → landing page bilingue (`index.html`, `landing.css`); `/scanner/` → scanner; `/account/` → app di paper trading.
+- Lingua di partenza: **inglese**. Italiano con il selettore EN/IT (o `?lang=it`); la scelta resta nel browser (`aifs_lang`).
+- `i18n.js` gestisce la lingua; le traduzioni italiane stanno vicino ai testi: `account/account.js` (dizionario `I18N.add`), pagine statiche (oggetto passato a `I18N.applyStatic`), `src/I18n.php` (messaggi API ed email), `glossary.it.json`.
+- Email: i template in `templates/email/` sono in inglese, le versioni italiane hanno suffisso `.it` (es. `verify_email.it.html`). La lingua arriva dall'header `X-Lang` inviato dall'app.
+- Testi legali: inglese `terms.html`, `privacy.html`; italiano `termini.html`, `informativa-privacy.html`.
+- Per aggiungere un testo: scrivilo in inglese nel codice e aggiungi la traduzione italiana nel relativo dizionario.

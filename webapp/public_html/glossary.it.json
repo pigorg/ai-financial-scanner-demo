@@ -1,0 +1,122 @@
+{
+ "ticker": {
+  "label": "Ticker",
+  "text": "Sigla che identifica il titolo in borsa (es. AAPL = Apple)."
+ },
+ "name": {
+  "label": "Società",
+  "text": "Nome della società quotata."
+ },
+ "sector": {
+  "label": "Settore",
+  "text": "Settore GICS di appartenenza della società (es. Information Technology, Health Care)."
+ },
+ "price": {
+  "label": "Prezzo",
+  "text": "Ultimo prezzo di chiusura disponibile, in dollari, corretto per split e dividendi."
+ },
+ "perf_1m": {
+  "label": "Perf 1M %",
+  "text": "Variazione percentuale del prezzo negli ultimi ~21 giorni di borsa (circa 1 mese)."
+ },
+ "perf_3m": {
+  "label": "Perf 3M %",
+  "text": "Variazione percentuale del prezzo negli ultimi ~63 giorni di borsa (circa 3 mesi)."
+ },
+ "perf_6m": {
+  "label": "Perf 6M %",
+  "text": "Variazione percentuale del prezzo negli ultimi ~126 giorni di borsa (circa 6 mesi)."
+ },
+ "perf_12m": {
+  "label": "Perf 12M %",
+  "text": "Variazione percentuale del prezzo negli ultimi ~252 giorni di borsa (circa 12 mesi)."
+ },
+ "rs_vs_spy": {
+  "label": "RS vs SPY 6M %",
+  "text": "Performance a 6 mesi del titolo rispetto a quella dell'indice di riferimento SPY (ETF sull'S&P 500). Positivo = il titolo ha fatto meglio dell'indice nel periodo, negativo = peggio. Formula: (1+perf titolo)/(1+perf SPY)-1."
+ },
+ "dist_high": {
+  "label": "Dist. Max 52w %",
+  "text": "Distanza percentuale del prezzo attuale dal massimo delle ultime 52 settimane. È sempre 0 o negativo: 0 significa che il titolo è sul suo massimo annuale, -20 che è 20% sotto."
+ },
+ "dist_low": {
+  "label": "Dist. Min 52w %",
+  "text": "Distanza percentuale del prezzo attuale dal minimo delle ultime 52 settimane. È sempre 0 o positiva: più è alta, più il titolo si è allontanato dal minimo annuale."
+ },
+ "vs_sma50": {
+  "label": "vs SMA50 %",
+  "text": "Distanza percentuale tra prezzo e media mobile semplice a 50 giorni (la media delle ultime 50 chiusure). Positivo = prezzo sopra la media, negativo = sotto."
+ },
+ "vs_sma200": {
+  "label": "vs SMA200 %",
+  "text": "Distanza percentuale tra prezzo e media mobile semplice a 200 giorni. Positivo = prezzo sopra la media, negativo = sotto. La SMA200 è una media di lungo periodo."
+ },
+ "avg_vol": {
+  "label": "Vol. medio 50g",
+  "text": "Media del numero di azioni scambiate ogni giorno negli ultimi 50 giorni di borsa. Indica quanto il titolo è scambiato (liquidità)."
+ },
+ "rel_vol": {
+  "label": "Vol. relativo",
+  "text": "Volume dell'ultima seduta diviso il volume medio a 50 giorni. 1 = volume normale, 2 = il doppio del solito, 0.5 = metà."
+ },
+ "atr_pct": {
+  "label": "ATR %",
+  "text": "Average True Range a 14 giorni espresso in percentuale del prezzo: misura l'ampiezza media del movimento giornaliero, cioè la volatilità. Più è alto, più il prezzo si muove in un giorno."
+ },
+ "rs_composite": {
+  "label": "RS Composite",
+  "text": "Punteggio da 1 a 99 che indica come la performance del titolo si colloca rispetto a tutti gli altri titoli dell'elenco. 99 = nel miglior 1% dell'elenco, 50 = nella media, 1 = tra i peggiori. Si basa su una media pesata delle performance a 3, 6, 9 e 12 mesi (il trimestre più recente pesa il 40%). È un indicatore descrittivo del passato, non una previsione."
+ },
+ "company": {
+  "label": "Company",
+  "text": "Nome della società quotata."
+ },
+ "pe_ttm": {
+  "label": "P/E TTM",
+  "text": "Rapporto tra prezzo e utile per azione degli ultimi 12 mesi (TTM = trailing twelve months). Indica quanti dollari si pagano per ogni dollaro di utile annuo. Non mostrato se la società è in perdita."
+ },
+ "mom_breve": {
+  "label": "Mom Breve",
+  "text": "Momentum di breve periodo, da 1 a 99: posizione del titolo nell'elenco in base alle performance a 1 settimana (peso 50%), 2 settimane (30%) e 1 mese (20%). 99 = tra i più forti nel breve, 1 = tra i più deboli. Descrive il passato recente, non è una previsione."
+ },
+ "state": {
+  "label": "State",
+  "text": "Etichetta descrittiva basata su Δ 1W–3W: 'Migliora' se Δ è ≥ +10, 'Peggiora' se ≤ -10, 'Stabile' altrimenti. Indica se la forza relativa recente (1 settimana) è salita o scesa rispetto a quella di 3 settimane fa."
+ },
+ "delta_1w3w": {
+  "label": "Δ 1W–3W",
+  "text": "Differenza tra la posizione in classifica (1-99) della performance a 1 settimana e quella a 3 settimane. Positivo = il titolo ha accelerato nell'ultima settimana rispetto alle 3 settimane, negativo = ha rallentato. Intervallo teorico da -98 a +98."
+ },
+ "avwap": {
+  "label": "AVWAP",
+  "text": "Numero (da 0 a 4) di AVWAP sopra i quali si trova il prezzo. L'AVWAP è il prezzo medio ponderato per i volumi calcolato a partire da una data di ancoraggio. Le 4 ancore sono: inizio mese (M), inizio trimestre (Q), ultimi 6 mesi (6M) e inizio anno (Y). 4/4 = prezzo sopra tutti, 0/4 = sotto tutti."
+ },
+ "avwap_m": {
+  "label": "AVWAP M",
+  "text": "Distanza % del prezzo dall'AVWAP (prezzo medio ponderato per i volumi) ancorato a: inizio del mese. Positivo = prezzo sopra l'AVWAP."
+ },
+ "avwap_q": {
+  "label": "AVWAP Q",
+  "text": "Distanza % del prezzo dall'AVWAP (prezzo medio ponderato per i volumi) ancorato a: inizio del trimestre. Positivo = prezzo sopra l'AVWAP."
+ },
+ "avwap_6m": {
+  "label": "AVWAP 6M",
+  "text": "Distanza % del prezzo dall'AVWAP (prezzo medio ponderato per i volumi) ancorato a: 6 mesi fa. Positivo = prezzo sopra l'AVWAP."
+ },
+ "avwap_y": {
+  "label": "AVWAP Y",
+  "text": "Distanza % del prezzo dall'AVWAP (prezzo medio ponderato per i volumi) ancorato a: inizio anno. Positivo = prezzo sopra l'AVWAP."
+ },
+ "eps_yoy": {
+  "label": "EPS YoY",
+  "text": "Variazione % dell'utile per azione dell'ultimo trimestre rispetto allo stesso trimestre dell'anno prima (YoY = year over year). 'Perdita' = utile per azione negativo negli ultimi 12 mesi. Fonte: Yahoo Finance."
+ },
+ "sales_yoy": {
+  "label": "Sales YoY",
+  "text": "Variazione % dei ricavi dell'ultimo trimestre rispetto allo stesso trimestre dell'anno prima. Fonte: Yahoo Finance."
+ },
+ "etf": {
+  "label": "ETF",
+  "text": "ETF settoriale SPDR che rappresenta il settore GICS della società (es. XLK = tecnologia, XLV = sanità, XLF = finanza)."
+ }
+}

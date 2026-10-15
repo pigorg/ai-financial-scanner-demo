@@ -405,12 +405,12 @@ foreach ($rows as &$x) {
     $x['mom_breve'] = $mom[$t] ?? null;
     $x['delta_1w3w'] = (isset($k5[$t], $k15[$t])) ? $k5[$t] - $k15[$t] : null;
     $d = $x['delta_1w3w'];
-    $x['state'] = $d === null ? null : ($d >= STATE_THRESHOLD ? 'Migliora' : ($d <= -STATE_THRESHOLD ? 'Peggiora' : 'Stabile'));
+    $x['state'] = $d === null ? null : ($d >= STATE_THRESHOLD ? 'Improving' : ($d <= -STATE_THRESHOLD ? 'Weakening' : 'Steady'));
     $f = $fund[$t] ?? [];
     $pe = $f['pe'] ?? null;
     $x['pe_ttm'] = ($pe && $pe > 0) ? r($pe, 1) : null;
     $loss = isset($f['eps']) && $f['eps'] < 0;
-    $x['eps_yoy'] = $loss ? 'Perdita' : (isset($f['eps_g']) ? r($f['eps_g'] * 100, 1) : null);
+    $x['eps_yoy'] = $loss ? 'Loss' : (isset($f['eps_g']) ? r($f['eps_g'] * 100, 1) : null);
     $x['sales_yoy'] = isset($f['rev_g']) ? r($f['rev_g'] * 100, 1) : null;
     unset($x['_rs_raw'], $x['_mom_raw'], $x['_p5'], $x['_p15']);
 }

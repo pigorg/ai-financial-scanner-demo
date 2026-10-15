@@ -32,6 +32,7 @@ function public_user(array $u): array {
 }
 
 try {
+    I18n::init();
     Auth::startSession();
     $action = (string)($_GET['action'] ?? '');
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -41,7 +42,7 @@ try {
         Auth::checkCsrf();
         $raw = file_get_contents('php://input');
         $in = $raw ? json_decode($raw, true) : [];
-        if (!is_array($in)) throw new ApiError('Richiesta non valida.');
+        if (!is_array($in)) throw new ApiError(tr('Invalid request.'));
     }
     $str = fn(string $k): string => (string)($in[$k] ?? '');
     $lv = fn(string $k): ?float => (isset($in[$k]) && $in[$k] !== '') ? (float)$in[$k] : null;
@@ -59,28 +60,28 @@ try {
             out(['message' => Auth::register($in)]);
         case 'verify':
             Auth::verifyEmail($str('token'));
-            out(['message' => 'Email confermata. Ora puoi accedere.']);
+            out(['message' => tr('Email confirmed. You can now log in.')]);
         case 'resend_verification':
             Auth::resendVerification($str('email'));
-            out(['message' => 'Se esiste un account non ancora confermato con questa email, ti abbiamo inviato un nuovo link.']);
+            out(['message' => tr('If an unconfirmed account exists for this email, we have sent you a new link.')]);
         case 'login':
             $u = Auth::login($str('login'), $str('password'));
             out(['csrf' => Auth::csrfToken(), 'user' => public_user($u)]);
         case 'logout':
             Auth::logout();
-            out(['message' => 'Uscito.']);
+            out(['message' => tr('Logged out.')]);
         case 'forgot':
             Auth::forgotPassword($str('email'));
-            out(['message' => 'Se l\'indirizzo è registrato, riceverai a breve un\'email con le istruzioni.']);
+            out(['message' => tr('If the address is registered, you will receive an email with instructions shortly.')]);
         case 'reset':
             Auth::resetPassword($str('token'), $str('password'));
-            out(['message' => 'Password aggiornata. Ora puoi accedere.']);
+            out(['message' => tr('Password updated. You can now log in.')]);
         case 'change_password':
             Auth::changePassword(Auth::requireUser(), $str('current'), $str('password'));
-            out(['message' => 'Password aggiornata.']);
+            out(['message' => tr('Password updated.')]);
         case 'delete_account':
             Auth::deleteAccount(Auth::requireUser(), $str('password'));
-            out(['message' => 'Account eliminato definitivamente.']);
+            out(['message' => tr('Account permanently deleted.')]);
 
         // ---- trading
         case 'portfolio':
@@ -93,28 +94,28 @@ try {
             $u = Auth::requireUser();
             $r = Trading::placeOrder($u, $str('ticker'), $str('side'), (int)($in['qty'] ?? 0), $str('mode') ?: 'now', $lv('stop_loss'), $lv('take_profit'));
             out(['order' => $r, 'message' => $r['status'] === 'executed'
-                ? 'Ordine eseguito.' : 'Ordine messo in coda: verrà eseguito al prossimo aggiornamento dei prezzi.']);
+                ? tr('Order executed.') : tr('Order queued: it will be executed at the next price update.')]);
         case 'set_levels':
             Trading::setLevels(Auth::requireUser(), $str('ticker'), $lv('stop_loss'), $lv('take_profit'));
-            out(['message' => 'Livelli salvati.']);
+            out(['message' => tr('Levels saved.')]);
         case 'cancel_order':
             Trading::cancelOrder(Auth::requireUser(), (int)($in['id'] ?? 0));
-            out(['message' => 'Ordine annullato.']);
+            out(['message' => tr('Order cancelled.')]);
         case 'update_settings':
             Trading::updateCommissions(Auth::requireUser(), (float)($in['commission_it'] ?? 0), (float)($in['commission_us'] ?? 0));
-            out(['message' => 'Impostazioni salvate.']);
+            out(['message' => tr('Settings saved.')]);
         case 'reset_account':
             $u = Auth::requireUser();
-            if (!password_verify($str('password'), $u['password_hash'])) throw new ApiError('Password non corretta.', 403);
+            if (!password_verify($str('password'), $u['password_hash'])) throw new ApiError(tr('Incorrect password.'), 403);
             Trading::resetAccount($u, strtoupper($str('currency')), (int)($in['budget'] ?? 0));
-            out(['message' => 'Conto azzerato.']);
+            out(['message' => tr('Account reset.')]);
 
         default:
-            throw new ApiError('Azione non trovata.', 404);
+            throw new ApiError(tr('Action not found.'), 404);
     }
 } catch (ApiError $e) {
     out(['error' => $e->getMessage()], $e->status);
 } catch (Throwable $e) {
     error_log('API error: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
-    out(['error' => 'Errore interno. Riprova più tardi.'], 500);
+    out(['error' => tr('Internal error. Please try again later.')], 500);
 }

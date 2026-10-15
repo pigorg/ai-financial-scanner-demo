@@ -1,122 +1,122 @@
 {
  "ticker": {
   "label": "Ticker",
-  "text": "Sigla che identifica il titolo in borsa (es. AAPL = Apple)."
+  "text": "The short symbol that identifies a stock on the exchange (e.g. AAPL = Apple)."
  },
  "name": {
-  "label": "Società",
-  "text": "Nome della società quotata."
+  "label": "Company",
+  "text": "Name of the listed company."
  },
  "sector": {
-  "label": "Settore",
-  "text": "Settore GICS di appartenenza della società (es. Information Technology, Health Care)."
+  "label": "Sector",
+  "text": "GICS sector the company belongs to (e.g. Information Technology, Health Care)."
  },
  "price": {
-  "label": "Prezzo",
-  "text": "Ultimo prezzo di chiusura disponibile, in dollari, corretto per split e dividendi."
+  "label": "Price",
+  "text": "Latest available closing price, in US dollars, adjusted for splits and dividends."
  },
  "perf_1m": {
   "label": "Perf 1M %",
-  "text": "Variazione percentuale del prezzo negli ultimi ~21 giorni di borsa (circa 1 mese)."
+  "text": "Percentage change in price over the last ~21 trading days (about 1 month)."
  },
  "perf_3m": {
   "label": "Perf 3M %",
-  "text": "Variazione percentuale del prezzo negli ultimi ~63 giorni di borsa (circa 3 mesi)."
+  "text": "Percentage change in price over the last ~63 trading days (about 3 months)."
  },
  "perf_6m": {
   "label": "Perf 6M %",
-  "text": "Variazione percentuale del prezzo negli ultimi ~126 giorni di borsa (circa 6 mesi)."
+  "text": "Percentage change in price over the last ~126 trading days (about 6 months)."
  },
  "perf_12m": {
   "label": "Perf 12M %",
-  "text": "Variazione percentuale del prezzo negli ultimi ~252 giorni di borsa (circa 12 mesi)."
+  "text": "Percentage change in price over the last ~252 trading days (about 12 months)."
  },
  "rs_vs_spy": {
   "label": "RS vs SPY 6M %",
-  "text": "Performance a 6 mesi del titolo rispetto a quella dell'indice di riferimento SPY (ETF sull'S&P 500). Positivo = il titolo ha fatto meglio dell'indice nel periodo, negativo = peggio. Formula: (1+perf titolo)/(1+perf SPY)-1."
+  "text": "The stock's 6-month performance compared with the benchmark SPY (an ETF that tracks the S&P 500). Positive = the stock beat the index over the period, negative = it lagged. Formula: (1 + stock return) / (1 + SPY return) - 1."
  },
  "dist_high": {
-  "label": "Dist. Max 52w %",
-  "text": "Distanza percentuale del prezzo attuale dal massimo delle ultime 52 settimane. È sempre 0 o negativo: 0 significa che il titolo è sul suo massimo annuale, -20 che è 20% sotto."
+  "label": "Dist. 52w High %",
+  "text": "Percentage distance of the current price from the 52-week high. Always 0 or negative: 0 means the stock is at its yearly high, -20 means it is 20% below it."
  },
  "dist_low": {
-  "label": "Dist. Min 52w %",
-  "text": "Distanza percentuale del prezzo attuale dal minimo delle ultime 52 settimane. È sempre 0 o positiva: più è alta, più il titolo si è allontanato dal minimo annuale."
+  "label": "Dist. 52w Low %",
+  "text": "Percentage distance of the current price from the 52-week low. Always 0 or positive: the higher it is, the further the stock has moved away from its yearly low."
  },
  "vs_sma50": {
   "label": "vs SMA50 %",
-  "text": "Distanza percentuale tra prezzo e media mobile semplice a 50 giorni (la media delle ultime 50 chiusure). Positivo = prezzo sopra la media, negativo = sotto."
+  "text": "Percentage distance between the price and its 50-day simple moving average (the average of the last 50 closes). Positive = price above the average, negative = below."
  },
  "vs_sma200": {
   "label": "vs SMA200 %",
-  "text": "Distanza percentuale tra prezzo e media mobile semplice a 200 giorni. Positivo = prezzo sopra la media, negativo = sotto. La SMA200 è una media di lungo periodo."
+  "text": "Percentage distance between the price and its 200-day simple moving average. Positive = price above the average, negative = below. The SMA200 is a long-term average."
  },
  "avg_vol": {
-  "label": "Vol. medio 50g",
-  "text": "Media del numero di azioni scambiate ogni giorno negli ultimi 50 giorni di borsa. Indica quanto il titolo è scambiato (liquidità)."
+  "label": "Avg Vol 50d",
+  "text": "Average number of shares traded per day over the last 50 trading days. It shows how actively the stock is traded (liquidity)."
  },
  "rel_vol": {
-  "label": "Vol. relativo",
-  "text": "Volume dell'ultima seduta diviso il volume medio a 50 giorni. 1 = volume normale, 2 = il doppio del solito, 0.5 = metà."
+  "label": "Rel. Volume",
+  "text": "Volume of the latest session divided by the 50-day average volume. 1 = normal volume, 2 = twice the usual, 0.5 = half."
  },
  "atr_pct": {
   "label": "ATR %",
-  "text": "Average True Range a 14 giorni espresso in percentuale del prezzo: misura l'ampiezza media del movimento giornaliero, cioè la volatilità. Più è alto, più il prezzo si muove in un giorno."
+  "text": "14-day Average True Range as a percentage of the price: it measures the average size of the daily move, i.e. volatility. The higher it is, the more the price moves in a day."
  },
  "rs_composite": {
   "label": "RS Composite",
-  "text": "Punteggio da 1 a 99 che indica come la performance del titolo si colloca rispetto a tutti gli altri titoli dell'elenco. 99 = nel miglior 1% dell'elenco, 50 = nella media, 1 = tra i peggiori. Si basa su una media pesata delle performance a 3, 6, 9 e 12 mesi (il trimestre più recente pesa il 40%). È un indicatore descrittivo del passato, non una previsione."
+  "text": "A score from 1 to 99 showing how the stock's performance ranks against all the other stocks in the list. 99 = in the top 1% of the list, 50 = average, 1 = among the weakest. It is based on a weighted average of 3, 6, 9 and 12-month performance (the most recent quarter weighs 40%). It describes the past; it is not a forecast."
  },
  "company": {
   "label": "Company",
-  "text": "Nome della società quotata."
+  "text": "Name of the listed company."
  },
  "pe_ttm": {
   "label": "P/E TTM",
-  "text": "Rapporto tra prezzo e utile per azione degli ultimi 12 mesi (TTM = trailing twelve months). Indica quanti dollari si pagano per ogni dollaro di utile annuo. Non mostrato se la società è in perdita."
+  "text": "Ratio between the price and earnings per share over the last 12 months (TTM = trailing twelve months). It shows how many dollars you pay for each dollar of yearly earnings. Not shown if the company is making a loss."
  },
  "mom_breve": {
-  "label": "Mom Breve",
-  "text": "Momentum di breve periodo, da 1 a 99: posizione del titolo nell'elenco in base alle performance a 1 settimana (peso 50%), 2 settimane (30%) e 1 mese (20%). 99 = tra i più forti nel breve, 1 = tra i più deboli. Descrive il passato recente, non è una previsione."
+  "label": "Short Mom",
+  "text": "Short-term momentum, from 1 to 99: the stock's rank in the list based on 1-week (50% weight), 2-week (30%) and 1-month (20%) performance. 99 = among the strongest in the short term, 1 = among the weakest. It describes the recent past; it is not a forecast."
  },
  "state": {
   "label": "State",
-  "text": "Etichetta descrittiva basata su Δ 1W–3W: 'Migliora' se Δ è ≥ +10, 'Peggiora' se ≤ -10, 'Stabile' altrimenti. Indica se la forza relativa recente (1 settimana) è salita o scesa rispetto a quella di 3 settimane fa."
+  "text": "A descriptive label based on Δ 1W-3W: 'Improving' if Δ is ≥ +10, 'Weakening' if ≤ -10, 'Steady' otherwise. It shows whether recent relative strength (1 week) has risen or fallen compared with 3 weeks ago."
  },
  "delta_1w3w": {
-  "label": "Δ 1W–3W",
-  "text": "Differenza tra la posizione in classifica (1-99) della performance a 1 settimana e quella a 3 settimane. Positivo = il titolo ha accelerato nell'ultima settimana rispetto alle 3 settimane, negativo = ha rallentato. Intervallo teorico da -98 a +98."
+  "label": "Δ 1W-3W",
+  "text": "Difference between the rank (1-99) of the 1-week performance and that of the 3-week performance. Positive = the stock accelerated in the last week compared with the last 3 weeks, negative = it slowed down. Theoretical range from -98 to +98."
  },
  "avwap": {
   "label": "AVWAP",
-  "text": "Numero (da 0 a 4) di AVWAP sopra i quali si trova il prezzo. L'AVWAP è il prezzo medio ponderato per i volumi calcolato a partire da una data di ancoraggio. Le 4 ancore sono: inizio mese (M), inizio trimestre (Q), ultimi 6 mesi (6M) e inizio anno (Y). 4/4 = prezzo sopra tutti, 0/4 = sotto tutti."
+  "text": "Number (0 to 4) of AVWAPs the price is above. AVWAP is the volume-weighted average price calculated from an anchor date. The 4 anchors are: start of the month (M), start of the quarter (Q), last 6 months (6M) and start of the year (Y). 4/4 = price above all of them, 0/4 = below all of them."
  },
  "avwap_m": {
   "label": "AVWAP M",
-  "text": "Distanza % del prezzo dall'AVWAP (prezzo medio ponderato per i volumi) ancorato a: inizio del mese. Positivo = prezzo sopra l'AVWAP."
+  "text": "% distance of the price from the AVWAP (volume-weighted average price) anchored at the start of the month. Positive = price above the AVWAP."
  },
  "avwap_q": {
   "label": "AVWAP Q",
-  "text": "Distanza % del prezzo dall'AVWAP (prezzo medio ponderato per i volumi) ancorato a: inizio del trimestre. Positivo = prezzo sopra l'AVWAP."
+  "text": "% distance of the price from the AVWAP (volume-weighted average price) anchored at the start of the quarter. Positive = price above the AVWAP."
  },
  "avwap_6m": {
   "label": "AVWAP 6M",
-  "text": "Distanza % del prezzo dall'AVWAP (prezzo medio ponderato per i volumi) ancorato a: 6 mesi fa. Positivo = prezzo sopra l'AVWAP."
+  "text": "% distance of the price from the AVWAP (volume-weighted average price) anchored 6 months ago. Positive = price above the AVWAP."
  },
  "avwap_y": {
   "label": "AVWAP Y",
-  "text": "Distanza % del prezzo dall'AVWAP (prezzo medio ponderato per i volumi) ancorato a: inizio anno. Positivo = prezzo sopra l'AVWAP."
+  "text": "% distance of the price from the AVWAP (volume-weighted average price) anchored at the start of the year. Positive = price above the AVWAP."
  },
  "eps_yoy": {
   "label": "EPS YoY",
-  "text": "Variazione % dell'utile per azione dell'ultimo trimestre rispetto allo stesso trimestre dell'anno prima (YoY = year over year). 'Perdita' = utile per azione negativo negli ultimi 12 mesi. Fonte: Yahoo Finance."
+  "text": "% change in earnings per share of the latest quarter versus the same quarter a year earlier (YoY = year over year). 'Loss' = negative earnings per share over the last 12 months. Source: Yahoo Finance."
  },
  "sales_yoy": {
   "label": "Sales YoY",
-  "text": "Variazione % dei ricavi dell'ultimo trimestre rispetto allo stesso trimestre dell'anno prima. Fonte: Yahoo Finance."
+  "text": "% change in revenue of the latest quarter versus the same quarter a year earlier. Source: Yahoo Finance."
  },
  "etf": {
   "label": "ETF",
-  "text": "ETF settoriale SPDR che rappresenta il settore GICS della società (es. XLK = tecnologia, XLV = sanità, XLF = finanza)."
+  "text": "SPDR sector ETF that represents the company's GICS sector (e.g. XLK = technology, XLV = health care, XLF = financials)."
  }
 }

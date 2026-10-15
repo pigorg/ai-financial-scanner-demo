@@ -8,6 +8,7 @@ declare(strict_types=1);
 date_default_timezone_set('UTC');   // tutte le date nel database sono UTC
 
 define('APP_ROOT', dirname(__DIR__));
+require_once __DIR__ . '/I18n.php';
 
 function app_config(): array {
     static $cfg = null;

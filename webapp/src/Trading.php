@@ -19,7 +19,7 @@ final class Trading {
         if (self::$prices === null) {
             $raw = @file_get_contents(self::priceFile());
             $j = $raw ? json_decode($raw, true) : null;
-            if (!is_array($j) || empty($j['prices'])) throw new ApiError('Prezzi non disponibili al momento.', 503);
+            if (!is_array($j) || empty($j['prices'])) throw new ApiError(tr('Prices are not available at the moment.'), 503);
             self::$prices = $j;
         }
         return self::$prices;
@@ -30,7 +30,7 @@ final class Trading {
     private static function assertFresh(array $p): void {
         $ts = strtotime((string)($p['updated'] ?? '')) ?: 0;
         if (time() - $ts > self::MAX_AGE_SEC) {
-            throw new ApiError('I prezzi non sono aggiornati: operatività sospesa fino al prossimo aggiornamento.', 503);
+            throw new ApiError(tr('Prices are out of date: trading is paused until the next update.'), 503);
         }
     }
 
@@ -38,13 +38,13 @@ final class Trading {
     public static function fxRate(string $from, string $to, array $p): float {
         if ($from === $to) return 1.0;
         $eurusd = (float)($p['fx']['EURUSD'] ?? 0);
-        if ($eurusd <= 0) throw new ApiError('Cambio EUR/USD non disponibile.', 503);
+        if ($eurusd <= 0) throw new ApiError(tr('EUR/USD exchange rate not available.'), 503);
         return $from === 'EUR' ? $eurusd : 1.0 / $eurusd;
     }
 
     public static function quote(string $ticker, array $p): array {
         $q = $p['prices'][$ticker] ?? null;
-        if (!$q || !isset($q['p']) || $q['p'] <= 0) throw new ApiError('Titolo non disponibile: ' . $ticker);
+        if (!$q || !isset($q['p']) || $q['p'] <= 0) throw new ApiError(tr('Stock not available: {t}', ['t' => $ticker]));
         return $q;
     }
 
@@ -52,16 +52,16 @@ final class Trading {
     /** Inserisce l'ordine: immediato ('now') o in coda per il prossimo aggiornamento ('next'). */
     public static function placeOrder(array $user, string $ticker, string $side, int $qty, string $mode, ?float $stopLoss = null, ?float $takeProfit = null): array {
         $ticker = strtoupper(trim($ticker));
-        if (!in_array($side, ['buy', 'sell'], true)) throw new ApiError('Operazione non valida.');
-        if (!in_array($mode, ['now', 'next'], true)) throw new ApiError('Modalità di esecuzione non valida.');
-        if ($qty < 1 || $qty > self::MAX_QTY) throw new ApiError('Quantità non valida.');
+        if (!in_array($side, ['buy', 'sell'], true)) throw new ApiError(tr('Invalid operation.'));
+        if (!in_array($mode, ['now', 'next'], true)) throw new ApiError(tr('Invalid execution mode.'));
+        if ($qty < 1 || $qty > self::MAX_QTY) throw new ApiError(tr('Invalid quantity.'));
         $p = self::prices();
         self::assertFresh($p);
         $q = self::quote($ticker, $p);
         $hasLevels = $stopLoss !== null || $takeProfit !== null;
         if ($hasLevels) {
             if ($side !== 'buy' || $mode !== 'now') {
-                throw new ApiError('Stop loss e take profit si impostano su un acquisto immediato (oppure dal portafoglio, dopo l\'esecuzione).');
+                throw new ApiError(tr('Stop loss and take profit can be set on an immediate buy (or from the portfolio, after execution).'));
             }
             self::validateLevels((float)$q['p'], $stopLoss, $takeProfit);
         }
@@ -69,7 +69,7 @@ final class Trading {
         if ($mode === 'next') {
             $st = db()->prepare('SELECT COUNT(*) FROM orders WHERE user_id = ? AND status = \'pending\'');
             $st->execute([$user['id']]);
-            if ((int)$st->fetchColumn() >= self::MAX_PENDING) throw new ApiError('Hai troppi ordini in coda (massimo ' . self::MAX_PENDING . ').');
+            if ((int)$st->fetchColumn() >= self::MAX_PENDING) throw new ApiError(tr('You have too many queued orders (maximum {n}).', ['n' => self::MAX_PENDING]));
             db()->prepare('INSERT INTO orders (user_id, ticker, market, side, qty, mode, status, created_at)
                     VALUES (?,?,?,?,?,\'next\',\'pending\',?)')
                 ->execute([$user['id'], $ticker, $q['m'], $side, $qty, now_utc()]);
@@ -94,7 +94,7 @@ final class Trading {
             $st = $pdo->prepare('SELECT * FROM users WHERE id = ? FOR UPDATE');
             $st->execute([$userId]);
             $u = $st->fetch();
-            if (!$u || $u['status'] !== 'active') throw new ApiError('Account non attivo.', 403);
+            if (!$u || $u['status'] !== 'active') throw new ApiError(tr('Account not active.'), 403);
 
             $acc = $u['currency'];
             $fx = self::fxRate($q['c'], $acc, $p);
@@ -111,8 +111,7 @@ final class Trading {
             if ($side === 'buy') {
                 $total = $gross + $comm;
                 if ($total > $cash + 1e-9) {
-                    throw new ApiError('Liquidità insufficiente: servono ' . number_format($total, 2, ',', '.') . ' ' . $acc
-                        . ', disponibili ' . number_format($cash, 2, ',', '.') . '.');
+                    throw new ApiError(tr('Insufficient cash: you need {need} {ccy}, available {have}.', ['need' => number_format($total, 2, '.', ','), 'ccy' => $acc, 'have' => number_format($cash, 2, '.', ',')]));
                 }
                 $cash = round_money($cash - $total);
                 if ($pos) {
@@ -126,7 +125,7 @@ final class Trading {
                 }
             } else {
                 if (!$pos || (int)$pos['qty'] < $qty) {
-                    throw new ApiError('Non possiedi abbastanza azioni di ' . $ticker . ' (vendita allo scoperto non consentita).');
+                    throw new ApiError(tr('You do not own enough shares of {t} (short selling is not allowed).', ['t' => $ticker]));
                 }
                 $realized = round_money($gross - $qty * (float)$pos['avg_cost'] - $comm);
                 $cash = round_money($cash + $gross - $comm);
@@ -163,7 +162,7 @@ final class Trading {
     public static function cancelOrder(array $user, int $orderId): void {
         $st = db()->prepare('UPDATE orders SET status = \'cancelled\' WHERE id = ? AND user_id = ? AND status = \'pending\'');
         $st->execute([$orderId, $user['id']]);
-        if ($st->rowCount() === 0) throw new ApiError('Ordine non trovato o già eseguito.', 404);
+        if ($st->rowCount() === 0) throw new ApiError(tr('Order not found or already executed.'), 404);
     }
 
     /** Esegue gli ordini in coda al nuovo snapshot (chiamato dal cron dopo l'aggiornamento prezzi). */
@@ -187,10 +186,10 @@ final class Trading {
     /** I livelli sono prezzi nella valuta del titolo. Lo stop deve stare sotto il prezzo, il take profit sopra. */
     private static function validateLevels(float $price, ?float $sl, ?float $tp): void {
         if ($sl !== null && ($sl <= 0 || $sl >= $price)) {
-            throw new ApiError('Lo stop loss deve essere maggiore di 0 e inferiore al prezzo attuale (' . number_format($price, 2, ',', '.') . ').');
+            throw new ApiError(tr('The stop loss must be greater than 0 and below the current price ({p}).', ['p' => number_format($price, 2, '.', ',')]));
         }
         if ($tp !== null && $tp <= $price) {
-            throw new ApiError('Il take profit deve essere superiore al prezzo attuale (' . number_format($price, 2, ',', '.') . ').');
+            throw new ApiError(tr('The take profit must be above the current price ({p}).', ['p' => number_format($price, 2, '.', ',')]));
         }
     }
 
@@ -204,7 +203,7 @@ final class Trading {
         $ticker = strtoupper(trim($ticker));
         $st = db()->prepare('SELECT qty FROM positions WHERE user_id = ? AND ticker = ?');
         $st->execute([$user['id'], $ticker]);
-        if (!$st->fetch()) throw new ApiError('Non hai una posizione aperta su ' . $ticker . '.', 404);
+        if (!$st->fetch()) throw new ApiError(tr('You have no open position on {t}.', ['t' => $ticker]), 404);
         $p = self::prices();
         self::assertFresh($p);
         self::validateLevels((float)self::quote($ticker, $p)['p'], $sl, $tp);
@@ -225,14 +224,14 @@ final class Trading {
             $q = $p['prices'][$r['ticker']] ?? null;
             if (!$q || empty($q['p'])) continue;
             $price = (float)$q['p'];
-            $label = number_format($price, 2, ',', '.') . ' ' . $q['c'];
+            $label = number_format($price, 2, '.', ',') . ' ' . $q['c'];
             $note = null;
             $isStop = false;
             if ($r['stop_loss'] !== null && $price <= (float)$r['stop_loss']) {
-                $note = 'Stop loss attivato a ' . number_format((float)$r['stop_loss'], 2, ',', '.') . ' (prezzo ' . $label . ')';
+                $note = 'Stop loss triggered at ' . number_format((float)$r['stop_loss'], 2, '.', ',') . ' (price ' . $label . ')';
                 $isStop = true;
             } elseif ($r['take_profit'] !== null && $price >= (float)$r['take_profit']) {
-                $note = 'Take profit raggiunto a ' . number_format((float)$r['take_profit'], 2, ',', '.') . ' (prezzo ' . $label . ')';
+                $note = 'Take profit reached at ' . number_format((float)$r['take_profit'], 2, '.', ',') . ' (price ' . $label . ')';
             }
             if ($note === null) continue;
             try {
@@ -301,15 +300,15 @@ final class Trading {
 
     // ------------------------------------------------------------ impostazioni
     public static function updateCommissions(array $user, float $it, float $us): void {
-        foreach ([$it, $us] as $c) if ($c < 0 || $c > 100) throw new ApiError('La commissione deve essere tra 0 e 100.');
+        foreach ([$it, $us] as $c) if ($c < 0 || $c > 100) throw new ApiError(tr('The commission must be between 0 and 100.'));
         db()->prepare('UPDATE users SET commission_it = ?, commission_us = ? WHERE id = ?')->execute([round($it, 2), round($us, 2), $user['id']]);
     }
 
     /** Azzera il conto: cancella ordini, posizioni e storico e riparte con un nuovo budget/valuta. */
     public static function resetAccount(array $user, string $currency, int $budget): void {
-        if (!in_array($currency, ['EUR', 'USD'], true)) throw new ApiError('Valuta non valida.');
+        if (!in_array($currency, ['EUR', 'USD'], true)) throw new ApiError(tr('Invalid currency.'));
         if ($budget < Auth::BUDGET_MIN || $budget > Auth::BUDGET_MAX) {
-            throw new ApiError('Il budget deve essere tra ' . Auth::BUDGET_MIN . ' e ' . Auth::BUDGET_MAX . '.');
+            throw new ApiError(tr('The budget must be between {min} and {max}.', ['min' => Auth::BUDGET_MIN, 'max' => Auth::BUDGET_MAX]));
         }
         $pdo = db();
         $pdo->beginTransaction();

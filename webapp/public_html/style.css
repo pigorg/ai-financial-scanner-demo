@@ -156,3 +156,9 @@ th.ic,td.ic{width:52px;padding:8px}
 
 #lvmodal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:40}
 .neg{color:var(--red)}
+
+.lang{display:inline-flex;border:1px solid var(--line2);border-radius:6px;overflow:hidden}
+.lang button{background:transparent;border:0;border-radius:0;color:var(--muted);font:600 11px var(--mono);padding:8px 10px;letter-spacing:.05em}
+.lang button.on{background:var(--cyan);color:#021018}
+
+[hidden]{display:none !important}

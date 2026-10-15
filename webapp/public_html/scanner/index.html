@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Scanner – Paper Trading</title>
+<meta name="description" content="Free stock scanner for 500+ S&P 500 stocks, updated daily: relative strength, trend and fundamentals with filters, charts and CSV export. Demo version, not financial advice.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ai-financial-scanner-demo.alessandrognola.com/scanner/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="demo-banner" role="note" data-i="banner"><strong>DISCLAIMER – DEMONSTRATION ONLY.</strong> This site is a demo for illustrative purposes only. The data shown is not guaranteed to be correct, complete or up to date, and the service is not guaranteed to work properly. It is not financial advice or a recommendation. All liability for any use of the information is disclaimed.</div>
+
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="44" height="44"><rect width="40" height="40" rx="8" fill="#0c150a" stroke="#2c4119"/><path d="M8 28 L15 18 L21 23 L32 10" fill="none" stroke="#b6ff00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="10" r="2.5" fill="#b6ff00"/></svg>
+      </div>
+      <div>
+        <h1>STOCK <span>/</span> SCANNER</h1>
+        <div class="sub">Multi-Factor Equity Research · demo</div>
+      </div>
+    </div>
+    <div class="status">
+      <div><div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="it">IT</button></div></div>
+      <div><a class="papbtn" href="/account/" data-i="papbtn">PAPER TRADING · LOG IN / SIGN UP</a></div>
+      <div><b><a href="/" style="color: #2fe08a;text-decoration:none;">HOME</a></b></div>
+      <div><b><a href="mailto:informazioni@istore-lab.com" style="color: #2fe08a;text-decoration:none;" data-i="contact">CONTACT</a></b></div>
+      <div><span class="dot"></span><b>SYSTEM ONLINE</b><small>DATA FEED: EOD</small></div>
+      <div><b id="clock">--:--:-- ROME</b><small id="mdate">--/--/----</small></div>
+    </div>
+  </header>
+
+  <a class="papcta" href="/account/" data-i="papcta"><strong>Try paper trading for free</strong> · start a simulation with virtual money (10,000 to 100,000) and buy/sell US and Italian stocks with zero risk. <span>Create account ›</span></a>
+
+  <nav class="tabs" id="nav">
+    <button class="on" data-page="scanner">SCANNER</button>
+    <button data-page="guida" data-i="tab_guide">GUIDE</button>
+    <a class="tablink" href="/account/">PAPER TRADING ›</a>
+  </nav>
+
+  <main id="page-scanner" class="layout">
+    <aside class="side">
+      <div class="applied"><span data-i="applied">FILTERS APPLIED</span><b id="n-filters">0</b></div>
+      <div class="btns">
+        <button class="primary" id="apply" data-i="apply">APPLY FILTERS</button>
+        <button id="reset" data-i="reset">RESET</button>
+      </div>
+
+      <h3><i>01</i> // <span data-i="h_univ">UNIVERSE</span></h3>
+      <label class="fld"><span data-i="sector">Sector</span>
+        <select id="f-sector"><option value="" data-i="all_sectors">All sectors</option></select></label>
+      <div class="univ"><span data-i="universe">Universe</span> <b id="n-univ">–</b></div>
+
+      <h3><i>02</i> // <span data-i="h_rs">RELATIVE STRENGTH</span></h3>
+      <label class="fld">RS Composite min <input id="f-rs" type="number" min="1" max="99" placeholder="1–99"></label>
+      <label class="fld"><span data-i="mom_min">Short Mom min</span> <input id="f-mom" type="number" min="1" max="99" placeholder="1–99"></label>
+      <label class="fld"><span data-i="state">State</span>
+        <select id="f-state"><option value="" data-i="all">All</option><option value="Improving" data-i="st_imp">Improving</option><option value="Steady" data-i="st_std">Steady</option><option value="Weakening" data-i="st_wk">Weakening</option></select></label>
+
+      <h3><i>03</i> // <span data-i="h_trend">TREND</span></h3>
+      <label class="chk"><span data-i="above50">Price above SMA50</span> <input id="f-50" type="checkbox"></label>
+      <label class="chk"><span data-i="above200">Price above SMA200</span> <input id="f-200" type="checkbox"></label>
+      <label class="fld">AVWAP min (0–4)
+        <select id="f-avwap"><option value="" data-i="any">Any</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+      <label class="fld"><span data-i="dh_min">Dist. 52w High min %</span> <input id="f-dh" type="number" data-iph="ph_dh" placeholder="e.g. -10"></label>
+
+      <h3><i>04</i> // <span data-i="h_fund">FUNDAMENTALS</span></h3>
+      <label class="fld">EPS YoY min % <input id="f-eps" type="number" data-iph="ph_eps" placeholder="e.g. 25"></label>
+      <label class="fld">Sales YoY min % <input id="f-sales" type="number" data-iph="ph_sales" placeholder="e.g. 20"></label>
+      <label class="chk"><span data-i="noloss">Exclude loss-making companies</span> <input id="f-noloss" type="checkbox"></label>
+    </aside>
+
+    <section class="content">
+      <div class="kpis" id="kpis"></div>
+
+      <div class="viewbar">
+        <span class="lbl" data-i="dataview">DATA VIEW</span>
+        <button class="vt on" data-v="essenziale" data-i="v_ess">Essential</button>
+        <button class="vt" data-v="completa" data-i="v_full">Full</button>
+      </div>
+
+      <div class="toolbar">
+        <label class="lbl"><span data-i="sort">SORT BY</span></label>
+        <select id="sort-by"></select>
+        <input id="f-search" data-iph="ph_search" placeholder="Search ticker or company…">
+        <span id="count"></span>
+        <button class="ghost" id="export" data-i="export">⤓ EXPORT CSV</button>
+      </div>
+
+      <div class="table-wrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+      <div class="foot"><span id="updated"></span><span data-i="foot_hint">Click the chart icon to open the chart · hover ⓘ for the meaning of each column</span></div>
+    </section>
+  </main>
+
+  <main id="page-guida" class="guide" hidden>
+    <h2 data-i="guide_h">Field guide</h2>
+    <p class="muted" data-i="guide_p">What every column and filter means. The indicators are descriptive and calculated from historical prices.</p>
+    <div id="guide-list"></div>
+  </main>
+
+  <p class="disclaimer" data-i="disclaimer"><strong>Disclaimer.</strong> Demo for illustrative purposes only: data is calculated from public sources (Yahoo Finance, Wikipedia) with no guarantee of accuracy, completeness, timeliness or proper operation. No financial advice or recommendation. All liability is disclaimed for decisions made on the basis of what is shown.<br>Charts: <a href="https://github.com/tradingview/lightweight-charts">TradingView Lightweight Charts</a>.<span class="credits" style="display:block">Made with <span class="heart" aria-label="love">&#10084;</span> by Alessandro Gnola</span></p>
+  <p class="legal-links"><a href="/terms.html" data-legal="terms" data-i="l_terms">Terms &amp; Conditions</a> · <a href="/privacy.html" data-legal="privacy" data-i="l_priv">Privacy &amp; Cookies</a> · <a href="#" data-consent-open data-i="l_cookie">Cookie settings</a></p>
+</div>
+
+<div id="authmodal" hidden>
+  <div class="modal-box am-box" role="dialog" aria-modal="true" aria-labelledby="am-title">
+    <div class="mhead"><span id="am-title" data-i="am_title">Log in required</span><button id="am-close" aria-label="Close">×</button></div>
+    <div class="am-body">
+      <p data-i="am_p1">To <strong id="am-act">trade</strong> <strong id="am-ticker"></strong> you need to <strong>log in</strong> or create a paper trading account.</p>
+      <p class="am-note" data-i="am_note">It is a simulation with <strong>virtual money</strong>: free, no real money, no prizes.</p>
+      <div class="am-btns"><a class="primary" href="/account/#/login" data-i="am_login">LOG IN</a><a href="/account/#/register" data-i="am_reg">CREATE ACCOUNT</a></div>
+    </div>
+  </div>
+</div>
+
+<div id="modal" hidden>
+  <div class="modal-box">
+    <div class="mhead"><span id="m-title"></span><button id="m-close">×</button></div>
+    <div id="chart"></div>
+    <div class="legend"><span class="l1">● SMA50</span> <span class="l2">● SMA200</span> <span data-i="legend">Daily end-of-day data</span></div>
+  </div>
+</div>
+<div id="tip" hidden></div>
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/i18n.js"></script>
+<script>
+I18N.applyStatic({
+  title: 'Scanner di titoli – Paper Trading',
+  desc: "Scanner gratuito dei 500+ titoli dell'S&P 500, aggiornato ogni giorno: forza relativa, trend e fondamentali con filtri, grafici ed export CSV. Versione demo, non è consulenza finanziaria.",
+  banner: '<strong>DISCLAIMER – ESERCIZIO DIMOSTRATIVO.</strong> Questo sito è un esercizio demo a scopo puramente illustrativo. I dati mostrati non sono garantiti per correttezza, completezza o aggiornamento, e non è garantito il corretto funzionamento del servizio. Non costituisce consulenza né raccomandazione finanziaria. Si declina ogni responsabilità per qualsiasi uso delle informazioni presenti.',
+  papbtn: 'PAPER TRADING · ACCEDI / REGISTRATI', contact: 'CONTATTI',
+  papcta: '<strong>Prova il paper trading gratis</strong> · crea la tua simulazione con denaro virtuale (da 10.000 a 100.000) e compra/vendi azioni USA e italiane senza rischi. <span>Crea account ›</span>',
+  tab_guide: 'GUIDA', applied: 'FILTRI APPLICATI', apply: 'APPLICA FILTRI', reset: 'AZZERA',
+  h_univ: 'UNIVERSO', sector: 'Settore', all_sectors: 'Tutti i settori', universe: 'Universo',
+  h_rs: 'FORZA RELATIVA', mom_min: 'Mom Breve min', state: 'Stato', all: 'Tutti', st_imp: 'Migliora', st_std: 'Stabile', st_wk: 'Peggiora',
+  h_trend: 'TREND', above50: 'Prezzo sopra SMA50', above200: 'Prezzo sopra SMA200', any: 'Qualsiasi', dh_min: 'Dist. Max 52w min %', ph_dh: 'es. -10',
+  h_fund: 'FONDAMENTALI', ph_eps: 'es. 25', ph_sales: 'es. 20', noloss: 'Escludi società in perdita',
+  dataview: 'VISTA DATI', v_ess: 'Essenziale', v_full: 'Completa', sort: 'ORDINA PER', ph_search: 'Cerca ticker o società…', export: '⤓ ESPORTA CSV',
+  foot_hint: "Clicca sull'icona del grafico per aprirlo · passa su ⓘ per il significato delle colonne",
+  guide_h: 'Guida ai campi', guide_p: 'Significato di ogni colonna e filtro dello scanner. Gli indicatori sono descrittivi e calcolati sui prezzi storici.',
+  disclaimer: '<strong>Disclaimer.</strong> Esercizio demo a solo scopo illustrativo: i dati sono calcolati da fonti pubbliche (Yahoo Finance, Wikipedia) senza alcuna garanzia di accuratezza, completezza, tempestività o perfetto funzionamento. Nessuna consulenza o raccomandazione finanziaria. Ogni responsabilità è declinata per decisioni prese sulla base di quanto mostrato.<br>Grafici: <a href="https://github.com/tradingview/lightweight-charts">TradingView Lightweight Charts</a>.<span class="credits" style="display:block">Creato con <span class="heart" aria-label="amore">&#10084;</span> da Alessandro Gnola</span>',
+  l_terms: 'Termini e condizioni', l_priv: 'Privacy e cookie', l_cookie: 'Gestisci cookie',
+  am_title: 'Accesso richiesto',
+  am_p1: 'Per <strong id="am-act">operare su</strong> <strong id="am-ticker"></strong> devi <strong>accedere</strong> o creare un account di paper trading.',
+  am_note: 'È una simulazione con <strong>denaro virtuale</strong>: gratis, nessun denaro reale, nessun premio.',
+  am_login: 'ACCEDI', am_reg: 'CREA ACCOUNT', legend: 'Dati giornalieri di fine seduta'
+});
+I18N.wire();
+</script>
+<script src="/consent.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

@@ -2,11 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ai-financial-scanner-demo.alessandrognola.com/</loc>
-    <changefreq>daily</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ai-financial-scanner-demo.alessandrognola.com/termini.html</loc>
+    <loc>https://ai-financial-scanner-demo.alessandrognola.com/scanner/</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ai-financial-scanner-demo.alessandrognola.com/terms.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -14,5 +19,15 @@
     <loc>https://ai-financial-scanner-demo.alessandrognola.com/privacy.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://ai-financial-scanner-demo.alessandrognola.com/termini.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.1</priority>
+  </url>
+  <url>
+    <loc>https://ai-financial-scanner-demo.alessandrognola.com/informativa-privacy.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.1</priority>
   </url>
 </urlset>

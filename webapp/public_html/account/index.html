@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paper Trading – AI Financial Scanner Demo</title>
-<meta name="description" content="Simulatore di paper trading con denaro virtuale: acquista e vendi azioni USA e italiane senza rischiare soldi veri. Versione demo.">
+<title>Log in – Paper Trading</title>
+<meta name="description" content="Paper trading simulator with virtual money: buy and sell US and Italian stocks without risking real money. Demo version.">
 <meta name="robots" content="noindex, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="/account/account.css">
 </head>
 <body>
-<div class="demo-banner paper" role="note"><strong>PAPER TRADING – SIMULAZIONE CON DENARO VIRTUALE.</strong> Nessun denaro reale, nessun premio, nessuna esecuzione sui mercati. Servizio demo: può contenere errori e i prezzi possono essere non corretti o non aggiornati. Non è consulenza finanziaria e i risultati simulati non garantiscono risultati reali.</div>
+<div class="demo-banner paper" role="note" data-i="banner"><strong>PAPER TRADING – SIMULATION WITH VIRTUAL MONEY.</strong> No real money, no prizes, nothing is executed on real markets. Demo service: it may contain errors and prices may be wrong or out of date. This is not financial advice and simulated results do not guarantee real results.</div>
 
 <div class="shell">
   <header class="top">
@@ -23,30 +23,45 @@
       </div>
       <div>
         <h1>PAPER <span>/</span> TRADING</h1>
-        <div class="sub">AI Financial Scanner Demo · denaro virtuale</div>
+        <div class="sub" data-i="sub">Practice investing · virtual money</div>
       </div>
     </div>
     <div class="status">
-      <div><b><a href="/" class="toplink">← SCANNER</a></b></div>
+      <div><b><a href="/" class="toplink">← HOME</a></b></div>
+      <div><b><a href="/scanner/" class="toplink">SCANNER</a></b></div>
+      <div><div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="it">IT</button></div></div>
       <div id="who"></div>
     </div>
   </header>
 
   <nav class="tabs" id="nav" hidden>
-    <button data-r="portfolio">PORTAFOGLIO</button>
-    <button data-r="trade">OPERA</button>
-    <button data-r="orders">ORDINI</button>
-    <button data-r="charts">GRAFICI</button>
-    <button data-r="settings">IMPOSTAZIONI</button>
+    <button data-r="portfolio" data-i="n_pf">PORTFOLIO</button>
+    <button data-r="trade" data-i="n_tr">TRADE</button>
+    <button data-r="orders" data-i="n_or">ORDERS</button>
+    <button data-r="charts" data-i="n_ch">CHARTS</button>
+    <button data-r="settings" data-i="n_se">SETTINGS</button>
   </nav>
 
-  <main id="view" class="acc-view" aria-live="polite"><p class="muted">Caricamento…</p></main>
+  <main id="view" class="acc-view" aria-live="polite"><p class="muted" data-i="loading">Loading…</p></main>
 
-  <p class="disclaimer"><strong>Disclaimer.</strong> Simulatore di paper trading a scopo dimostrativo: il denaro è virtuale, non viene eseguita alcuna operazione sui mercati reali e non esistono premi o vincite. I prezzi provengono da fonti pubbliche senza garanzia di accuratezza o tempestività e sono aggiornati ogni ora circa durante la giornata di mercato e alla chiusura. Il servizio, gli account e i dati possono essere sospesi o eliminati in qualsiasi momento. Nessuna consulenza o raccomandazione finanziaria.</p>
-  <p class="legal-links"><a href="/termini.html">Termini e condizioni</a> · <a href="/privacy.html">Privacy e cookie</a> · <a href="#" data-consent-open>Gestisci cookie</a></p>
+  <p class="disclaimer" data-i="disc"><strong>Disclaimer.</strong> Paper trading simulator for demonstration purposes: the money is virtual, no operation is executed on real markets and there are no prizes or winnings. Prices come from public sources with no guarantee of accuracy or timeliness and are updated about every hour during the trading day and at the close. The service, accounts and data may be suspended or deleted at any time. No financial advice or recommendation.</p>
+  <p class="legal-links"><a href="/terms.html" data-legal="terms" data-i="l_terms">Terms &amp; Conditions</a> · <a href="/privacy.html" data-legal="privacy" data-i="l_priv">Privacy &amp; Cookies</a> · <a href="#" data-consent-open data-i="l_cookie">Cookie settings</a></p>
 </div>
 
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/i18n.js"></script>
+<script>
+I18N.applyStatic({
+  title: 'Accedi – Paper Trading',
+  desc: 'Simulatore di paper trading con denaro virtuale: acquista e vendi azioni USA e italiane senza rischiare soldi veri. Versione demo.',
+  banner: '<strong>PAPER TRADING – SIMULAZIONE CON DENARO VIRTUALE.</strong> Nessun denaro reale, nessun premio, nessuna esecuzione sui mercati. Servizio demo: può contenere errori e i prezzi possono essere non corretti o non aggiornati. Non è consulenza finanziaria e i risultati simulati non garantiscono risultati reali.',
+  sub: 'Impara a investire · denaro virtuale',
+  n_pf: 'PORTAFOGLIO', n_tr: 'OPERA', n_or: 'ORDINI', n_ch: 'GRAFICI', n_se: 'IMPOSTAZIONI', loading: 'Caricamento…',
+  disc: '<strong>Disclaimer.</strong> Simulatore di paper trading a scopo dimostrativo: il denaro è virtuale, non viene eseguita alcuna operazione sui mercati reali e non esistono premi o vincite. I prezzi provengono da fonti pubbliche senza garanzia di accuratezza o tempestività e sono aggiornati ogni ora circa durante la giornata di mercato e alla chiusura. Il servizio, gli account e i dati possono essere sospesi o eliminati in qualsiasi momento. Nessuna consulenza o raccomandazione finanziaria.',
+  l_terms: 'Termini e condizioni', l_priv: 'Privacy e cookie', l_cookie: 'Gestisci cookie'
+});
+I18N.wire();
+</script>
 <script src="/consent.js"></script>
 <script src="/account/account.js"></script>
 </body>

@@ -35,8 +35,9 @@ final class Mailer {
             'site_name' => $c['site_name'], 'site_url' => $c['site_url'], 'reply_to' => $c['reply_to'],
         ];
         $dir = $c['templates_dir'];
-        $html = @file_get_contents("$dir/$template.html");
-        $txt  = @file_get_contents("$dir/$template.txt");
+        $suffix = (I18n::$lang === 'it' && is_file("$dir/$template.it.html")) ? '.it' : '';
+        $html = @file_get_contents("$dir/$template$suffix.html");
+        $txt  = @file_get_contents("$dir/$template$suffix.txt");
         if ($html === false || $txt === false) throw new RuntimeException("Template email mancante: $template");
 
         $m = new PHPMailer(true);

@@ -210,12 +210,12 @@ def main() -> int:
         x["mom_breve"] = mom.get(t)
         x["delta_1w3w"] = k5[t] - k15[t] if t in k5 and t in k15 else None
         d = x["delta_1w3w"]
-        x["state"] = None if d is None else ("Migliora" if d >= STATE_THRESHOLD else "Peggiora" if d <= -STATE_THRESHOLD else "Stabile")
+        x["state"] = None if d is None else ("Improving" if d >= STATE_THRESHOLD else "Weakening" if d <= -STATE_THRESHOLD else "Steady")
         f = fund.get(t, {})
         pe = f.get("pe")
         x["pe_ttm"] = r(pe, 1) if pe and pe > 0 else None
         loss = f.get("eps") is not None and f["eps"] < 0
-        x["eps_yoy"] = "Perdita" if loss else (r(f["eps_g"] * 100, 1) if f.get("eps_g") is not None else None)
+        x["eps_yoy"] = "Loss" if loss else (r(f["eps_g"] * 100, 1) if f.get("eps_g") is not None else None)
         x["sales_yoy"] = r(f["rev_g"] * 100, 1) if f.get("rev_g") is not None else None
         for k in ("_rs_raw", "_mom_raw", "_p5", "_p15"):
             del x[k]

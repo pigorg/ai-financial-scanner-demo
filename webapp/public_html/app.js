@@ -11,6 +11,21 @@ PCT.delete('delta_1w3w');
 const INT = new Set(['rs_composite','mom_breve','delta_1w3w']);
 const SCORE = new Set(['rs_composite','mom_breve']);
 
+const T = (en, p) => I18N.t(en, p);
+const IT = I18N.lang === 'it';
+const LOC = IT ? 'it-IT' : 'en-GB';
+I18N.add({
+  'Improving': 'Migliora', 'Steady': 'Stabile', 'Weakening': 'Peggiora', 'Loss': 'Perdita',
+  'STOCKS': 'TITOLI', 'ROME': 'ROMA', 'UPDATED': 'AGGIORNATO',
+  'Open the chart of {t}': 'Apri il grafico di {t}',
+  'Buy {t} in paper trading': 'Acquista {t} nel paper trading', 'Sell {t} in paper trading': 'Vendi {t} nel paper trading',
+  'BUY': 'ACQUISTA', 'SELL': 'VENDI', 'buy': 'acquistare', 'sell': 'vendere',
+  'LEADERSHIP': 'LEADERSHIP', 'IMPROVING': 'IN MIGLIORAMENTO', 'STATE = IMPROVING': 'STATE = MIGLIORA',
+  'PRICE ABOVE ALL 4 AVWAPS': 'PREZZO SOPRA TUTTI E 4 GLI AVWAP', 'STOCKS SCANNED': 'TITOLI SCANSIONATI',
+});
+// compatibilità con data.json generati prima del passaggio all'inglese
+const LEGACY = {Migliora: 'Improving', Stabile: 'Steady', Peggiora: 'Weakening', Perdita: 'Loss'};
+
 let rows = [], glossary = {}, data, sortKey = 'rs_composite', sortDir = -1;
 let filters = {};
 const $ = id => document.getElementById(id);
@@ -18,20 +33,21 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 
 function fmt(k, v) {
   if (v === null || v === undefined) return '—';
-  if (k === 'company' || k === 'state' || typeof v === 'string') return esc(v);
+  if (k === 'company') return esc(v);
+  if (k === 'state' || typeof v === 'string') return esc(T(v));
   if (k === 'avwap') return v + '/4';
-  if (k === 'price') return '$' + v.toLocaleString('en-US', {minimumFractionDigits: 2});
-  if (k === 'pe_ttm') return v.toLocaleString('en-US', {minimumFractionDigits: 1}) + 'x';
+  if (k === 'price') return '$' + v.toLocaleString(LOC, {minimumFractionDigits: 2});
+  if (k === 'pe_ttm') return v.toLocaleString(LOC, {minimumFractionDigits: 1}) + 'x';
   if (INT.has(k)) return (k === 'delta_1w3w' && v > 0 ? '+' : '') + v;
-  if (PCT.has(k)) return (SIGNED.has(k) && v > 0 ? '+' : '') + v.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + '%';
-  if (k === 'avg_vol') return v.toLocaleString('en-US');
-  return v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  if (PCT.has(k)) return (SIGNED.has(k) && v > 0 ? '+' : '') + v.toLocaleString(LOC, {minimumFractionDigits: 1, maximumFractionDigits: 1}) + '%';
+  if (k === 'avg_vol') return v.toLocaleString(LOC);
+  return v.toLocaleString(LOC, {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
 
 function cellClass(k, v) {
-  if (v === 'Perdita') return 'neg';
+  if (v === 'Loss') return 'neg';
   if (v == null) return '';
-  if (k === 'state') return v === 'Migliora' ? 'pos' : v === 'Peggiora' ? 'org' : '';
+  if (k === 'state') return v === 'Improving' ? 'pos' : v === 'Weakening' ? 'org' : '';
   if (SCORE.has(k)) return v >= 70 ? 'pos' : v >= 40 ? 'amb' : 'neg';
   if (k === 'avwap') return v >= 3 ? 'pos' : v >= 2 ? '' : 'org';
   if (SIGNED.has(k) && typeof v === 'number') return v >= 0 ? 'pos' : 'neg';
@@ -66,7 +82,7 @@ function filtered() {
     ge(r.rs_composite, f.rs) && ge(r.mom_breve, f.mom) && ge(r.avwap, f.avwap) && ge(r.dist_high, f.dh) &&
     ge(r.eps_yoy, f.eps) && ge(r.sales_yoy, f.sales) &&
     (!f.a50 || (r.vs_sma50 ?? -1) > 0) && (!f.a200 || (r.vs_sma200 ?? -1) > 0) &&
-    (!f.noloss || r.eps_yoy !== 'Perdita'));
+    (!f.noloss || r.eps_yoy !== 'Loss'));
 }
 
 function sorted(list) {
@@ -81,11 +97,11 @@ function sorted(list) {
 let shown = [];
 function render() {
   shown = sorted(filtered());
-  $('count').textContent = `${shown.length} TITOLI`;
-  $('tbl').tBodies[0].innerHTML = shown.map(r => `<tr><td class="ic"><button class="chartbtn" data-t="${esc(r.ticker)}" title="Apri il grafico di ${esc(r.ticker)}" aria-label="Apri il grafico di ${esc(r.ticker)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></button></td>` + COLS.map(k => {
+  $('count').textContent = `${shown.length} ${T('STOCKS')}`;
+  $('tbl').tBodies[0].innerHTML = shown.map(r => `<tr><td class="ic"><button class="chartbtn" data-t="${esc(r.ticker)}" title="${esc(T('Open the chart of {t}', {t: r.ticker}))}" aria-label="${esc(T('Open the chart of {t}', {t: r.ticker}))}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></button></td>` + COLS.map(k => {
     const v = r[k];
     const cls = [TEXT_COLS.has(k) ? 'l' : '', k === 'ticker' ? 'tk' : '', k === 'company' ? 'co' : '', cellClass(k, v)].join(' ');
-    const tb = k === 'ticker' ? `<span class="tbtns"><button class="tbtn buy" data-act="buy" data-t="${esc(r.ticker)}" title="Acquista ${esc(r.ticker)} nel paper trading">ACQUISTA</button><button class="tbtn sell" data-act="sell" data-t="${esc(r.ticker)}" title="Vendi ${esc(r.ticker)} nel paper trading">VENDI</button></span>` : '';
+    const tb = k === 'ticker' ? `<span class="tbtns"><button class="tbtn buy" data-act="buy" data-t="${esc(r.ticker)}" title="${esc(T('Buy {t} in paper trading', {t: r.ticker}))}">${T('BUY')}</button><button class="tbtn sell" data-act="sell" data-t="${esc(r.ticker)}" title="${esc(T('Sell {t} in paper trading', {t: r.ticker}))}">${T('SELL')}</button></span>` : '';
     return `<td class="${cls}">${fmt(k, v)}${tb}</td>`;
   }).join('') + '</tr>').join('');
   renderHead();
@@ -93,18 +109,18 @@ function render() {
 
 function renderKpis() {
   const n = rows.length, c = f => rows.filter(f).length;
-  const lead = c(r => r.rs_composite >= 80), imp = c(r => r.state === 'Migliora'), av4 = c(r => r.avwap === 4);
+  const lead = c(r => r.rs_composite >= 80), imp = c(r => r.state === 'Improving'), av4 = c(r => r.avwap === 4);
   const gro = c(r => typeof r.eps_yoy === 'number' && r.eps_yoy >= 25 && r.sales_yoy >= 20);
-  const p = x => (x / n * 100).toFixed(1).replace('.', ',') + '%';
-  const d = data.market_date ? data.market_date.split('-').reverse().join('/') : new Date(data.updated).toLocaleDateString('it-IT');
+  const p = x => (x / n * 100).toFixed(1).replace('.', IT ? ',' : '.') + '%';
+  const d = data.market_date ? data.market_date.split('-').reverse().join('/') : new Date(data.updated).toLocaleDateString(LOC);
   const card = (t, v, desc, cls = '') => `<div class="kpi"><div class="t">${t}</div><div class="v ${cls}">${v}</div><div class="d">${desc}</div></div>`;
   $('kpis').innerHTML =
-    card('LEADERSHIP', lead, `RS COMPOSITE ≥ 80 · ${p(lead)}`) +
-    card('IN MIGLIORAMENTO', imp, `STATE = MIGLIORA · ${p(imp)}`) +
-    card('AVWAP 4/4', av4, 'PREZZO SOPRA TUTTI E 4 GLI AVWAP') +
+    card(T('LEADERSHIP'), lead, `RS COMPOSITE ≥ 80 · ${p(lead)}`) +
+    card(T('IMPROVING'), imp, `${T('STATE = IMPROVING')} · ${p(imp)}`) +
+    card('AVWAP 4/4', av4, T('PRICE ABOVE ALL 4 AVWAPS')) +
     card('GROWTH', gro, 'EPS YoY ≥ 25 · SALES YoY ≥ 20') +
     card('MARKET DATE', d, 'EOD', 'sm') +
-    card('UNIVERSE', n.toLocaleString('it-IT'), 'TITOLI SCANSIONATI');
+    card('UNIVERSE', n.toLocaleString(LOC), T('STOCKS SCANNED'));
 }
 
 function renderGuide() {
@@ -113,24 +129,24 @@ function renderGuide() {
 
 function tick() {
   const now = new Date(), tz = 'Europe/Rome';
-  $('clock').textContent = now.toLocaleTimeString('en-GB', {timeZone: tz}) + ' ROMA';
-  $('mdate').textContent = now.toLocaleDateString('it-IT', {timeZone: tz});
+  $('clock').textContent = now.toLocaleTimeString('en-GB', {timeZone: tz}) + ' ' + T('ROME');
+  $('mdate').textContent = now.toLocaleDateString(LOC, {timeZone: tz});
 }
 
 async function init() {
   [glossary, data] = await Promise.all([
-    fetch('glossary.json').then(r => r.json()),
-    fetch('data.json?_=' + Date.now()).then(r => r.json()),
+    fetch(IT ? '/glossary.it.json' : '/glossary.json').then(r => r.json()),
+    fetch('/data.json?_=' + Date.now()).then(r => r.json()),
   ]);
-  rows = data.rows.map(r => ({...r, company: r.name}));
-  $('updated').textContent = 'AGGIORNATO: ' + new Date(data.updated).toLocaleString('it-IT') + ' · BENCHMARK ' + data.benchmark;
-  $('n-univ').textContent = rows.length.toLocaleString('it-IT');
+  rows = data.rows.map(r => ({...r, company: r.name, state: LEGACY[r.state] || r.state, eps_yoy: LEGACY[r.eps_yoy] || r.eps_yoy}));
+  $('updated').textContent = T('UPDATED') + ': ' + new Date(data.updated).toLocaleString(LOC) + ' · BENCHMARK ' + data.benchmark;
+  $('n-univ').textContent = rows.length.toLocaleString(LOC);
   [...new Set(rows.map(r => r.sector).filter(Boolean))].sort()
     .forEach(s => $('f-sector').insertAdjacentHTML('beforeend', `<option>${esc(s)}</option>`));
   readFilters(); renderKpis(); renderGuide(); render();
 }
 
-// Filtri
+// Filters
 $('apply').onclick = () => { readFilters(); render(); };
 $('reset').onclick = () => {
   document.querySelectorAll('.side input,.side select').forEach(e => e.type === 'checkbox' ? e.checked = false : e.value = '');
@@ -139,7 +155,7 @@ $('reset').onclick = () => {
 document.querySelectorAll('.side input').forEach(e => e.addEventListener('keydown', ev => { if (ev.key === 'Enter') $('apply').click(); }));
 $('f-search').addEventListener('input', render);
 
-// Viste, ordinamento, nav
+// Views, sorting, nav
 document.querySelectorAll('.vt').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.vt').forEach(x => x.classList.toggle('on', x === b));
   COLS = VIEWS[b.dataset.v]; if (!COLS.includes(sortKey)) sortKey = 'ticker'; render();
@@ -160,7 +176,7 @@ $('nav').addEventListener('click', e => {
   $('page-guida').hidden = b.dataset.page !== 'guida';
 });
 
-// Esporta CSV (righe filtrate, colonne della vista corrente)
+// CSV export (filtered rows, columns of the current view)
 $('export').onclick = () => {
   const cell = v => v == null ? '' : `"${String(v).replace(/"/g, '""')}"`;
   const csv = [COLS.map(k => cell(glossary[k]?.label || k)).join(',')]
@@ -170,7 +186,7 @@ $('export').onclick = () => {
   a.download = 'rs-scanner.csv'; a.click(); URL.revokeObjectURL(a.href);
 };
 
-// Tooltip con la definizione del campo (icona ⓘ)
+// Tooltip with the field definition (ⓘ icon)
 const tip = $('tip');
 function showTip(q) {
   tip.textContent = glossary[q.dataset.k]?.text || ''; tip.hidden = false;
@@ -182,14 +198,14 @@ $('tbl').tHead.addEventListener('mouseover', e => { const q = e.target.closest('
 $('tbl').tHead.addEventListener('mouseout', () => tip.hidden = true);
 document.addEventListener('click', () => tip.hidden = true);
 
-// Grafico (TradingView Lightweight Charts)
+// Chart (TradingView Lightweight Charts)
 let chart;
 const sma = (bars, n) => bars.map((b, i) => i < n - 1 ? null : {time: b.time, value: bars.slice(i - n + 1, i + 1).reduce((s, x) => s + x.close, 0) / n}).filter(Boolean);
 async function openChart(t) {
   const row = rows.find(r => r.ticker === t);
   $('m-title').textContent = `${t}${row?.company ? ' · ' + row.company : ''}`;
   $('modal').hidden = false;
-  const bars = (await fetch(`hist/${t}.json`).then(r => r.json())).map(([time, open, high, low, close]) => ({time, open, high, low, close}));
+  const bars = (await fetch(`/hist/${t}.json`).then(r => r.json())).map(([time, open, high, low, close]) => ({time, open, high, low, close}));
   if (chart) chart.remove();
   chart = LightweightCharts.createChart($('chart'), {
     autoSize: true,
@@ -204,7 +220,7 @@ async function openChart(t) {
 }
 $('tbl').tBodies[0].addEventListener('click', e => { const b = e.target.closest('.chartbtn'); if (b) openChart(b.dataset.t); });
 
-// Acquista / Vendi: se loggato porta su Opera con il ticker, altrimenti avvisa di accedere
+// Buy / Sell: if logged in go to the Trade page with the ticker, otherwise ask the user to log in
 async function isLoggedIn() {
   try {
     const r = await fetch('/api.php?action=me', {credentials: 'same-origin', cache: 'no-store'});
@@ -217,7 +233,7 @@ $('tbl').tBodies[0].addEventListener('click', async e => {
   const t = b.dataset.t, act = b.dataset.act;
   if (await isLoggedIn()) { location.href = '/account/#/trade?t=' + encodeURIComponent(t) + '&side=' + act; return; }
   $('am-ticker').textContent = t;
-  $('am-act').textContent = act === 'buy' ? 'acquistare' : 'vendere';
+  $('am-act').textContent = T(act === 'buy' ? 'buy' : 'sell');
   $('authmodal').hidden = false;
 });
 $('am-close').addEventListener('click', () => { $('authmodal').hidden = true; });
