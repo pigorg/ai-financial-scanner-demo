@@ -32,13 +32,13 @@ Struttura aggiuntiva (tutto FUORI da `public_html`, tranne le pagine pubbliche):
 `php webapp/scripts/admin.php list | stats | suspend <utente> | unsuspend <utente> | delete <utente> | verify <utente>`
 
 ## Cron su cPanel (PHP)
-Aggiornamento orario nei giorni feriali + chiusura (ora del server = ora di Roma; adatta se il server è in UTC):
+Quattro aggiornamenti nei giorni feriali: **9:00, 12:00, 16:00, 21:00** (ora del server = ora di Roma; adatta se il server è in UTC):
 
-    0 9-22 * * 1-5 PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=mid   && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_mid.log 2>&1
-    30 23  * * 1-5 PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=close && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_close.log 2>&1
+    0 9 * * 1-5        PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=mid --scanner && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_morning.log 2>&1
+    0 12,16,21 * * 1-5 PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/update_data.php --snapshot=mid && PHP /home/UTENTE/CARTELLA_SITO/webapp/scripts/post_update.php > /home/UTENTE/update_mid.log 2>&1
 
-(`PHP` = percorso di php, vedi sotto.) `mid` aggiorna solo `prices.json` (pochi secondi); `close` ricalcola anche lo scanner (~1-2 minuti).
-`post_update.php` esegue gli ordini in coda, registra il valore dei portafogli e ripulisce token/account non confermati.
+(`PHP` = percorso di php, vedi sotto.) Alle 9:00 si aggiorna anche lo scanner (`--scanner`: `data.json`, `hist/`, ~2 minuti, con l'ultima chiusura completa USA); alle 12, 16 e 21 solo `prices.json` (pochi secondi), usato dal paper trading.
+`post_update.php` esegue gli ordini in coda, scatta stop loss / take profit, registra il valore dei portafogli e ripulisce token/account non confermati.
 
 ### Cron originale (solo scanner)
 Il job scarica i prezzi da Yahoo Finance, calcola i campi e riscrive `data.json` e `hist/`.

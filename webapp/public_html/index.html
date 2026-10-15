@@ -39,8 +39,8 @@
     </nav>
     <div class="cta-top">
       <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" class="on">EN</button><button type="button" data-lang="it">IT</button></div>
-      <a class="btn ghost" href="/account/#/login" data-i="btn_login">Log in</a>
-      <a class="btn primary" href="/account/#/register" data-i="btn_signup">Sign up free</a>
+      <a class="btn ghost" id="top-login" href="/account/#/login" data-i="btn_login">Log in</a>
+      <a class="btn primary" id="top-signup" href="/account/#/register" data-i="btn_signup">Sign up free</a>
     </div>
   </div>
 </header>
@@ -60,7 +60,7 @@
         <ul class="ticks">
           <li data-i="tick1">Start with 10,000 to 100,000 virtual</li>
           <li data-i="tick2">EUR or USD account</li>
-          <li data-i="tick3">Prices updated hourly</li>
+          <li data-i="tick3">Prices updated 4 times a day</li>
         </ul>
       </div>
 
@@ -164,9 +164,9 @@
       <h2 data-i="q_h2">Questions, answered</h2>
       <details><summary data-i="q1">Is it really free?</summary><p data-i="a1">Yes. There is nothing to pay, no deposit and no premium plan. It is a personal project built for learning, shared with anyone who finds it useful.</p></details>
       <details><summary data-i="q2">Is any real money involved?</summary><p data-i="a2">No. The money is 100% virtual, orders are never sent to a real market, and there are no prizes, rankings with rewards or promotions.</p></details>
-      <details><summary data-i="q3">Where do the prices come from?</summary><p data-i="a3">From public data sources, updated about once an hour on trading days and at the market close. They can be delayed or inaccurate, so this is a demo and not a source for real decisions.</p></details>
+      <details><summary data-i="q3">Where do the prices come from?</summary><p data-i="a3">From public data sources, updated four times a day on trading days (9:00, 12:00, 16:00 and 21:00, Rome time). They can be delayed or inaccurate, so this is a demo and not a source for real decisions.</p></details>
       <details><summary data-i="q4">What do I need to sign up?</summary><p data-i="a4">A username, an email address and a password. You confirm your email and you are ready. You can delete your account and all your data at any time.</p></details>
-      <details><summary data-i="q5">How do stop loss and take profit work here?</summary><p data-i="a5">You set a price below (stop loss) and/or above (take profit) the current one. When an hourly price update reaches that level, the whole position is sold. The execution price can differ from your level, as it can in real markets.</p></details>
+      <details><summary data-i="q5">How do stop loss and take profit work here?</summary><p data-i="a5">You set a price below (stop loss) and/or above (take profit) the current one. When a price update reaches that level, the whole position is sold. The execution price can differ from your level, as it can in real markets.</p></details>
       <details><summary data-i="q6">Is this financial advice?</summary><p data-i="a6">No. It is an educational simulation. Nothing on the site is a recommendation, and simulated results do not guarantee real-world results.</p></details>
     </div>
   </section>
@@ -204,7 +204,7 @@
     h1: 'Impara a investire con <em>soldi virtuali</em>.<br>Zero rischi.',
     lead: 'Scansiona oltre 500 titoli USA, poi compra e vendi azioni USA e italiane in un simulatore realistico. Imposta uno stop loss e un take profit, segui il portafoglio e impara dai tuoi errori <strong>senza perdere un euro</strong>.',
     cta1: 'Inizia il paper trading', cta2: 'Apri lo scanner di titoli',
-    tick1: 'Parti con 10.000-100.000 virtuali', tick2: 'Conto in EUR o USD', tick3: 'Prezzi aggiornati ogni ora',
+    tick1: 'Parti con 10.000-100.000 virtuali', tick2: 'Conto in EUR o USD', tick3: 'Prezzi aggiornati 4 volte al giorno',
     hc_value: 'VALORE PORTAFOGLIO', hc_pl: 'P/L TOTALE', th_stock: 'Titolo', th_qty: 'Qtà', th_stop: 'Stop / Take',
     example: 'Esempio illustrativo',
     s1: 'titoli USA scansionati ogni giorno', s2: 'blue chip italiane (FTSE MIB)', s3: 'Scegli la valuta del conto', s4: 'Denaro virtuale, uso gratuito',
@@ -228,15 +228,16 @@
     q_h2: 'Domande e risposte',
     q1: 'È davvero gratuito?', a1: 'Sì. Non c\'è niente da pagare, nessun deposito e nessun piano premium. È un progetto personale nato per imparare, condiviso con chi lo trova utile.',
     q2: 'Ci sono soldi veri di mezzo?', a2: 'No. Il denaro è virtuale al 100%, gli ordini non vengono mai inviati a un mercato reale e non ci sono premi, classifiche con ricompense o promozioni.',
-    q3: 'Da dove arrivano i prezzi?', a3: 'Da fonti pubbliche, aggiornate circa una volta all\'ora nei giorni di borsa e alla chiusura. Possono essere in ritardo o imprecise: è una demo, non una fonte per decisioni reali.',
+    q3: 'Da dove arrivano i prezzi?', a3: 'Da fonti pubbliche, aggiornate quattro volte al giorno nei giorni di borsa (alle 9:00, 12:00, 16:00 e 21:00, ora di Roma). Possono essere in ritardo o imprecise: è una demo, non una fonte per decisioni reali.',
     q4: 'Cosa serve per registrarsi?', a4: 'Uno username, un indirizzo email e una password. Confermi l\'email e sei pronto. Puoi cancellare l\'account e tutti i dati quando vuoi.',
-    q5: 'Come funzionano qui stop loss e take profit?', a5: 'Imposti un prezzo sotto (stop loss) e/o sopra (take profit) quello attuale. Quando un aggiornamento orario dei prezzi raggiunge quel livello, l\'intera posizione viene venduta. Il prezzo di esecuzione può differire dal tuo livello, come nei mercati reali.',
+    q5: 'Come funzionano qui stop loss e take profit?', a5: 'Imposti un prezzo sotto (stop loss) e/o sopra (take profit) quello attuale. Quando un aggiornamento dei prezzi raggiunge quel livello, l\'intera posizione viene venduta. Il prezzo di esecuzione può differire dal tuo livello, come nei mercati reali.',
     q6: 'È consulenza finanziaria?', a6: 'No. È una simulazione a scopo educativo. Nulla sul sito è una raccomandazione e i risultati simulati non garantiscono risultati reali.',
     fn_h2: 'Sbaglia gratis', fn_sub: 'È il modo più economico per capire come funzionano i mercati.', fn_login: 'Hai già un account? Accedi',
     foot: '<strong>Disclaimer.</strong> Paper Trading è una demo a scopo educativo. Il denaro è virtuale, nessun ordine viene eseguito sui mercati reali e non ci sono premi. I dati provengono da fonti pubbliche e possono essere errati, in ritardo o incompleti. Nulla qui è consulenza finanziaria. Il servizio, gli account e i dati possono essere sospesi o eliminati in qualsiasi momento.',
     l_terms: 'Termini e condizioni', l_priv: 'Privacy e cookie', l_cookie: 'Gestisci cookie', credit: 'Creato con', contact: 'Contatti'
   };
-  var EN = {};
+  var EN = {btn_app: 'Open the app'};
+  IT.btn_app = "Apri l'app";
   var nodes = document.querySelectorAll('[data-i]');
   nodes.forEach(function (n) { var k = n.getAttribute('data-i'); if (!(k in EN)) EN[k] = n.innerHTML; });
   var metaDesc = document.querySelector('meta[name=description]');
@@ -258,6 +259,13 @@
   var lang = q || saved() || 'en';
   if (q) save(q);
   if (lang === 'it') apply('it'); else apply('en');
+  fetch('/api.php?action=me', {credentials: 'same-origin', cache: 'no-store'}).then(function (r) { return r.json(); }).then(function (j) {
+    if (!(j && j.ok && j.user)) return;
+    var lg = document.getElementById('top-login'), su = document.getElementById('top-signup');
+    if (lg) lg.hidden = true;
+    if (su) { su.setAttribute('href', '/account/'); su.setAttribute('data-i', 'btn_app'); }
+    apply(document.documentElement.lang === 'it' ? 'it' : 'en');
+  }).catch(function () {});
   document.querySelector('.lang').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-lang]'); if (!b) return;
     save(b.getAttribute('data-lang')); apply(b.getAttribute('data-lang'));

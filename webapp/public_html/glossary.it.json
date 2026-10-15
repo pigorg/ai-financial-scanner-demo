@@ -121,6 +121,6 @@
  },
  "last_date": {
   "label": "Ultimo aggiornamento",
-  "text": "Data dell'ultima seduta di borsa inclusa nei dati di questo titolo (chiusura di fine giornata)."
+  "text": "Data dell'ultima seduta di borsa inclusa nei dati di questo titolo (chiusura di fine giornata). L'orario accanto indica quando i dati dello scanner sono stati aggiornati l'ultima volta (ora di Roma)."
  }
 }

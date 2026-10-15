@@ -121,6 +121,6 @@
  },
  "last_date": {
   "label": "Last update",
-  "text": "Date of the latest trading session included in the data for this stock (end-of-day close)."
+  "text": "Date of the latest trading session included in the data for this stock (end-of-day close). The time next to it is when the scanner data was last refreshed (Rome time)."
  }
 }

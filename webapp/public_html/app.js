@@ -12,6 +12,7 @@ const INT = new Set(['rs_composite','mom_breve','delta_1w3w']);
 const SCORE = new Set(['rs_composite','mom_breve']);
 
 const T = (en, p) => I18N.t(en, p);
+let UPD_TIME = '';   // ora (Roma) dell'ultimo aggiornamento dei dati, impostata in init()
 const IT = I18N.lang === 'it';
 const LOC = IT ? 'it-IT' : 'en-GB';
 I18N.add({
@@ -34,7 +35,7 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 function fmt(k, v) {
   if (v === null || v === undefined) return '—';
   if (k === 'company') return esc(v);
-  if (k === 'last_date') return esc(String(v).split('-').reverse().join('/'));
+  if (k === 'last_date') return esc(String(v).split('-').reverse().join('/')) + (UPD_TIME ? ` <span class="utime">${UPD_TIME}</span>` : '');
   if (k === 'state' || typeof v === 'string') return esc(T(v));
   if (k === 'avwap') return v + '/4';
   if (k === 'price') return '$' + v.toLocaleString(LOC, {minimumFractionDigits: 2});
@@ -67,10 +68,11 @@ function readFilters() {
   const n = id => $(id).value === '' ? null : +$(id).value;
   filters = {
     sector: $('f-sector').value, state: $('f-state').value,
+    tickers: ($('f-ticker').value || '').toUpperCase().split(/[\s,;]+/).filter(Boolean),
     rs: n('f-rs'), mom: n('f-mom'), avwap: n('f-avwap'), dh: n('f-dh'), eps: n('f-eps'), sales: n('f-sales'),
     a50: $('f-50').checked, a200: $('f-200').checked, noloss: $('f-noloss').checked,
   };
-  const active = Object.values(filters).filter(v => v !== null && v !== '' && v !== false).length;
+  const active = Object.values(filters).filter(v => v !== null && v !== '' && v !== false && !(Array.isArray(v) && !v.length)).length;
   $('n-filters').textContent = active;
 }
 
@@ -79,7 +81,7 @@ function filtered() {
   const ge = (v, min) => min === null || (v != null && typeof v === 'number' && v >= min);
   return rows.filter(r =>
     (!q || r.ticker.toLowerCase().includes(q) || (r.company || '').toLowerCase().includes(q)) &&
-    (!f.sector || r.sector === f.sector) && (!f.state || r.state === f.state) &&
+    (!f.tickers.length || f.tickers.includes(r.ticker)) && (!f.sector || r.sector === f.sector) && (!f.state || r.state === f.state) &&
     ge(r.rs_composite, f.rs) && ge(r.mom_breve, f.mom) && ge(r.avwap, f.avwap) && ge(r.dist_high, f.dh) &&
     ge(r.eps_yoy, f.eps) && ge(r.sales_yoy, f.sales) &&
     (!f.a50 || (r.vs_sma50 ?? -1) > 0) && (!f.a200 || (r.vs_sma200 ?? -1) > 0) &&
@@ -139,6 +141,7 @@ async function init() {
     fetch(IT ? '/glossary.it.json' : '/glossary.json').then(r => r.json()),
     fetch('/data.json?_=' + Date.now()).then(r => r.json()),
   ]);
+  UPD_TIME = new Date(data.updated).toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Rome'});
   rows = data.rows.map(r => ({...r, company: r.name, last_date: r.last_date || data.market_date, state: LEGACY[r.state] || r.state, eps_yoy: LEGACY[r.eps_yoy] || r.eps_yoy}));
   $('updated').textContent = T('UPDATED') + ': ' + new Date(data.updated).toLocaleString(LOC) + ' · BENCHMARK ' + data.benchmark;
   $('n-univ').textContent = rows.length.toLocaleString(LOC);
@@ -155,6 +158,7 @@ $('reset').onclick = () => {
 };
 document.querySelectorAll('.side input').forEach(e => e.addEventListener('keydown', ev => { if (ev.key === 'Enter') $('apply').click(); }));
 $('f-search').addEventListener('input', render);
+$('f-ticker').addEventListener('input', () => { readFilters(); render(); });
 
 // Views, sorting, nav
 document.querySelectorAll('.vt').forEach(b => b.addEventListener('click', () => {
@@ -246,3 +250,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') $('modal').h
 
 tick(); setInterval(tick, 1000);
 init();
+
+// Se l'utente è già loggato, nascondi gli inviti a registrarsi / accedere
+isLoggedIn().then(ok => {
+  if (!ok) return;
+  ['pap-top', 'pap-cta'].forEach(id => { const el = document.getElementById(id); if (el) el.hidden = true; });
+});

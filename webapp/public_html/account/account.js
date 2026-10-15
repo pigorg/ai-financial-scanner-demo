@@ -51,13 +51,13 @@ I18N.add({
   'SELL': 'VENDI', 'BUY': 'COMPRA', 'Set stop loss and take profit': 'Imposta stop loss e take profit',
   'You have no open positions yet. Go to {trade} to buy your first stock with virtual money.': 'Non hai ancora posizioni aperte. Vai su {trade} per acquistare la tua prima azione con il denaro virtuale.',
   'TRADE': 'OPERA',
-  "P/L includes the effect of the EUR/USD exchange rate for stocks priced in a currency different from your account. Commissions are simulated. Stop loss and take profit are price levels in the stock's currency: when reached, the whole position is sold at the first price update (about every hour) and the sale price can differ from the level.":
-    'Il P/L include l\'effetto del cambio EUR/USD per i titoli in valuta diversa dal conto. Le commissioni sono simulate. Stop loss e take profit sono livelli di prezzo nella valuta del titolo: se raggiunti, la posizione viene venduta per intero al primo aggiornamento dei prezzi (circa ogni ora) e il prezzo di vendita può differire dal livello.',
+  "P/L includes the effect of the EUR/USD exchange rate for stocks priced in a currency different from your account. Commissions are simulated. Stop loss and take profit are price levels in the stock's currency: when reached, the whole position is sold at the first price update (up to 4 times a day) and the sale price can differ from the level.":
+    'Il P/L include l\'effetto del cambio EUR/USD per i titoli in valuta diversa dal conto. Le commissioni sono simulate. Stop loss e take profit sono livelli di prezzo nella valuta del titolo: se raggiunti, la posizione viene venduta per intero al primo aggiornamento dei prezzi (fino a 4 volte al giorno) e il prezzo di vendita può differire dal livello.',
   // levels dialog
   'Price not available for this stock: please try again later.': 'Prezzo non disponibile per questo titolo: riprova più tardi.',
   'Stop loss / Take profit · {t}': 'Stop loss / Take profit · {t}', 'Close': 'Chiudi',
-  'Current price: <b>{price} {ccy}</b> · position: {qty} shares.<br>If the price falls to your <b>stop loss</b> or rises to your <b>take profit</b>, the whole position is sold at the first price update (about every hour). The sale price can differ from the level you set. Leave a field empty to not use it.':
-    'Prezzo attuale: <b>{price} {ccy}</b> · posizione: {qty} azioni.<br>Se il prezzo scende fino allo <b>stop loss</b> o sale fino al <b>take profit</b>, l\'intera posizione viene venduta al primo aggiornamento dei prezzi (circa ogni ora). Il prezzo di vendita può differire dal livello impostato. Lascia vuoto per non usarlo.',
+  'Current price: <b>{price} {ccy}</b> · position: {qty} shares.<br>If the price falls to your <b>stop loss</b> or rises to your <b>take profit</b>, the whole position is sold at the first price update (up to 4 times a day). The sale price can differ from the level you set. Leave a field empty to not use it.':
+    'Prezzo attuale: <b>{price} {ccy}</b> · posizione: {qty} azioni.<br>Se il prezzo scende fino allo <b>stop loss</b> o sale fino al <b>take profit</b>, l\'intera posizione viene venduta al primo aggiornamento dei prezzi (fino a 4 volte al giorno). Il prezzo di vendita può differire dal livello impostato. Lascia vuoto per non usarlo.',
   'Stop loss ({ccy}) · below the current price': 'Stop loss ({ccy}) · sotto il prezzo attuale',
   'Take profit ({ccy}) · above the current price': 'Take profit ({ccy}) · sopra il prezzo attuale',
   'SAVE': 'SALVA', '{pct}% vs current price': '{pct}% rispetto al prezzo attuale',
@@ -68,11 +68,11 @@ I18N.add({
   'Quantity (shares)': 'Quantità (azioni)',
   'Stop loss (price, optional)': 'Stop loss (prezzo, facoltativo)', 'Take profit (price, optional)': 'Take profit (prezzo, facoltativo)',
   'e.g. 95': 'es. 95', 'e.g. 120': 'es. 120',
-  'Only with an immediate buy. If the price reaches them, the whole position is sold at the first price update (about every hour) and the price can differ from the level. You can also set them later from the portfolio.':
-    'Solo con acquisto immediato. Se il prezzo li raggiunge, l\'intera posizione viene venduta al primo aggiornamento dei prezzi (circa ogni ora) e il prezzo può differire dal livello. Puoi impostarli anche dopo, dal portafoglio.',
+  'Only with an immediate buy. If the price reaches them, the whole position is sold at the first price update (up to 4 times a day) and the price can differ from the level. You can also set them later from the portfolio.':
+    'Solo con acquisto immediato. Se il prezzo li raggiunge, l\'intera posizione viene venduta al primo aggiornamento dei prezzi (fino a 4 volte al giorno) e il prezzo può differire dal livello. Puoi impostarli anche dopo, dal portafoglio.',
   '<strong>Now</strong> at the price of the {snap} ({when})': '<strong>Subito</strong> al prezzo di {snap} ({when})',
-  '<strong>At the next price update</strong> (weekdays: every hour from 9:00 to 22:00 and at the 23:30 close, Rome time). The price is not known in advance; you can cancel the order while it is queued.':
-    '<strong>Al prossimo aggiornamento</strong> dei prezzi (giorni feriali: ogni ora dalle 9:00 alle 22:00 e alla chiusura delle 23:30, ora di Roma). Prezzo non noto in anticipo; l\'ordine può essere annullato finché è in coda.',
+  '<strong>At the next price update</strong> (weekdays at 9:00, 12:00, 16:00 and 21:00, Rome time). The price is not known in advance; you can cancel the order while it is queued.':
+    '<strong>Al prossimo aggiornamento</strong> dei prezzi (giorni feriali: alle 9:00, 12:00, 16:00 e 21:00, ora di Roma). Prezzo non noto in anticipo; l\'ordine può essere annullato finché è in coda.',
   'Select a stock.': 'Seleziona un titolo.',
   'SIMULATED COMMISSIONS': 'COMMISSIONI SIMULATE',
   'Italian stocks: {it} per order<br>US stocks: {us} per order<br>You can change them in {settings}.': 'Azioni italiane: {it} per ordine<br>Azioni USA: {us} per ordine<br>Modificabili in {settings}.',
@@ -314,7 +314,7 @@ async function viewPortfolio() {
     <h3>${T('OPEN POSITIONS')}</h3>
     ${p.positions.length ? `<div class="table-wrap"><table><thead><tr><th class="l">${T('Ticker')}</th><th class="l">${T('Company')}</th><th>${T('Qty')}</th><th>${T('Avg cost')}</th><th>${T('Price')}</th><th>${T('Value')}</th><th>${T('P/L')}</th><th>${T('Weight')}</th><th>${T('Stop loss')}</th><th>${T('Take profit')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
       : `<div class="empty panel">${T('You have no open positions yet. Go to {trade} to buy your first stock with virtual money.', {trade: tradeLink})}</div>`}
-    <p class="note">${T("P/L includes the effect of the EUR/USD exchange rate for stocks priced in a currency different from your account. Commissions are simulated. Stop loss and take profit are price levels in the stock's currency: when reached, the whole position is sold at the first price update (about every hour) and the sale price can differ from the level.")}</p>`);
+    <p class="note">${T("P/L includes the effect of the EUR/USD exchange rate for stocks priced in a currency different from your account. Commissions are simulated. Stop loss and take profit are price levels in the stock's currency: when reached, the whole position is sold at the first price update (up to 4 times a day) and the sale price can differ from the level.")}</p>`);
   document.querySelectorAll('[data-sell]').forEach(b => b.onclick = () => go('trade?t=' + encodeURIComponent(b.dataset.sell) + '&side=sell'));
   document.querySelectorAll('[data-buy]').forEach(b => b.onclick = () => go('trade?t=' + encodeURIComponent(b.dataset.buy) + '&side=buy'));
   document.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => openLevels(p.positions.find(x => x.ticker === b.dataset.lv), viewPortfolio));
@@ -330,7 +330,7 @@ function openLevels(x, done) {
   el.innerHTML = `<div class="modal-box am-box" role="dialog" aria-modal="true">
     <div class="mhead"><span>${esc(T('Stop loss / Take profit · {t}', {t: x.ticker}))}</span><button type="button" data-x aria-label="${esc(T('Close'))}">×</button></div>
     <div class="am-body">
-      <p class="note">${T('Current price: <b>{price} {ccy}</b> · position: {qty} shares.<br>If the price falls to your <b>stop loss</b> or rises to your <b>take profit</b>, the whole position is sold at the first price update (about every hour). The sale price can differ from the level you set. Leave a field empty to not use it.', {price: num(x.price), ccy: esc(ccy), qty: x.qty})}</p>
+      <p class="note">${T('Current price: <b>{price} {ccy}</b> · position: {qty} shares.<br>If the price falls to your <b>stop loss</b> or rises to your <b>take profit</b>, the whole position is sold at the first price update (up to 4 times a day). The sale price can differ from the level you set. Leave a field empty to not use it.', {price: num(x.price), ccy: esc(ccy), qty: x.qty})}</p>
       <form id="f-lv"><div class="fmsg"></div>
         <label class="fld">${T('Stop loss ({ccy}) · below the current price', {ccy: esc(ccy)})}<input name="stop_loss" type="number" step="0.01" min="0" value="${x.stop_loss ?? ''}"><small data-h="stop_loss"></small></label>
         <label class="fld">${T('Take profit ({ccy}) · above the current price', {ccy: esc(ccy)})}<input name="take_profit" type="number" step="0.01" min="0" value="${x.take_profit ?? ''}"><small data-h="take_profit"></small></label>
@@ -376,10 +376,10 @@ async function viewTrade(q) {
           <div>${T('Stop loss (price, optional)')}<input id="t-sl" name="stop_loss" type="number" step="0.01" min="0" placeholder="${esc(T('e.g. 95'))}"><small id="t-sl-h"></small></div>
           <div>${T('Take profit (price, optional)')}<input id="t-tp" name="take_profit" type="number" step="0.01" min="0" placeholder="${esc(T('e.g. 120'))}"><small id="t-tp-h"></small></div>
         </div>
-        <p class="note" id="t-lvnote">${T('Only with an immediate buy. If the price reaches them, the whole position is sold at the first price update (about every hour) and the price can differ from the level. You can also set them later from the portfolio.')}</p>
+        <p class="note" id="t-lvnote">${T('Only with an immediate buy. If the price reaches them, the whole position is sold at the first price update (up to 4 times a day) and the price can differ from the level. You can also set them later from the portfolio.')}</p>
         <div class="radio">
           <label><input type="radio" name="mode" value="now" checked><span>${T('<strong>Now</strong> at the price of the {snap} ({when})', {snap: snapLabel(prices.snapshot), when: when(prices.updated)})}</span></label>
-          <label><input type="radio" name="mode" value="next"><span>${T('<strong>At the next price update</strong> (weekdays: every hour from 9:00 to 22:00 and at the 23:30 close, Rome time). The price is not known in advance; you can cancel the order while it is queued.')}</span></label>
+          <label><input type="radio" name="mode" value="next"><span>${T('<strong>At the next price update</strong> (weekdays at 9:00, 12:00, 16:00 and 21:00, Rome time). The price is not known in advance; you can cancel the order while it is queued.')}</span></label>
         </div>
         <div id="t-est" class="estimate">${T('Select a stock.')}</div>
         <div class="btnrow"><button class="buy" type="submit" data-side="buy">${T('BUY')}</button><button class="sell" type="submit" data-side="sell">${T('SELL')}</button></div>

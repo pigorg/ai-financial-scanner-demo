@@ -165,3 +165,4 @@ th.ic,td.ic{width:52px;padding:8px}
 
 .tabs a.tabnav{display:inline-block;text-decoration:none;border-bottom:3px solid transparent;color:var(--cyan);font:500 12px var(--mono);letter-spacing:.1em;padding:16px 18px;margin-right:6px;border-right:1px solid var(--line)}
 .tabs a.tabnav:hover{color:#fff}
+.utime{color:var(--muted);font-size:11px;margin-left:6px}

@@ -28,7 +28,7 @@
     </div>
     <div class="status">
       <div><div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="it">IT</button></div></div>
-      <div><a class="papbtn" href="/account/" data-i="papbtn">PAPER TRADING · LOG IN / SIGN UP</a></div>
+      <div id="pap-top"><a class="papbtn" href="/account/" data-i="papbtn">PAPER TRADING · LOG IN / SIGN UP</a></div>
       <div><b><a href="/" style="color: #2fe08a;text-decoration:none;">HOME</a></b></div>
       <div><b><a href="mailto:informazioni@istore-lab.com" style="color: #2fe08a;text-decoration:none;" data-i="contact">CONTACT</a></b></div>
       <div><span class="dot"></span><b>SYSTEM ONLINE</b><small>DATA FEED: EOD</small></div>
@@ -36,7 +36,7 @@
     </div>
   </header>
 
-  <a class="papcta" href="/account/" data-i="papcta"><strong>Try paper trading for free</strong> · start a simulation with virtual money (10,000 to 100,000) and buy/sell US and Italian stocks with zero risk. <span>Create account ›</span></a>
+  <a class="papcta" id="pap-cta" href="/account/" data-i="papcta"><strong>Try paper trading for free</strong> · start a simulation with virtual money (10,000 to 100,000) and buy/sell US and Italian stocks with zero risk. <span>Create account ›</span></a>
 
   <nav class="tabs" id="nav">
     <button class="on" data-page="scanner">SCANNER</button>
@@ -55,6 +55,7 @@
       <h3><i>01</i> // <span data-i="h_univ">UNIVERSE</span></h3>
       <label class="fld"><span data-i="sector">Sector</span>
         <select id="f-sector"><option value="" data-i="all_sectors">All sectors</option></select></label>
+      <label class="fld"><span data-i="tickers">Ticker(s)</span> <input id="f-ticker" data-iph="ph_ticker" placeholder="e.g. AAPL, MSFT" autocomplete="off"></label>
       <div class="univ"><span data-i="universe">Universe</span> <b id="n-univ">–</b></div>
 
       <h3><i>02</i> // <span data-i="h_rs">RELATIVE STRENGTH</span></h3>
@@ -137,7 +138,7 @@ I18N.applyStatic({
   papbtn: 'PAPER TRADING · ACCEDI / REGISTRATI', contact: 'CONTATTI',
   papcta: '<strong>Prova il paper trading gratis</strong> · crea la tua simulazione con denaro virtuale (da 10.000 a 100.000) e compra/vendi azioni USA e italiane senza rischi. <span>Crea account ›</span>',
   tab_guide: 'GUIDA', applied: 'FILTRI APPLICATI', apply: 'APPLICA FILTRI', reset: 'AZZERA',
-  h_univ: 'UNIVERSO', sector: 'Settore', all_sectors: 'Tutti i settori', universe: 'Universo',
+  h_univ: 'UNIVERSO', tickers: 'Ticker', ph_ticker: 'es. AAPL, MSFT', sector: 'Settore', all_sectors: 'Tutti i settori', universe: 'Universo',
   h_rs: 'FORZA RELATIVA', mom_min: 'Mom Breve min', state: 'Stato', all: 'Tutti', st_imp: 'Migliora', st_std: 'Stabile', st_wk: 'Peggiora',
   h_trend: 'TREND', above50: 'Prezzo sopra SMA50', above200: 'Prezzo sopra SMA200', any: 'Qualsiasi', dh_min: 'Dist. Max 52w min %', ph_dh: 'es. -10',
   h_fund: 'FONDAMENTALI', ph_eps: 'es. 25', ph_sales: 'es. 20', noloss: 'Escludi società in perdita',

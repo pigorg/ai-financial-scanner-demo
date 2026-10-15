@@ -7,6 +7,7 @@
  * Uso:  php update_data.php [--snapshot=mid|close]
  *   mid   = metà giornata: aggiorna SOLO public_html/prices.json (prezzi per il paper trading, S&P 500 + FTSE MIB + cambio EUR/USD)
  *   close = chiusura: come mid, poi ricalcola anche lo scanner (data.json + hist/)
+ *   --scanner = con qualsiasi snapshot, ricalcola anche lo scanner (es. 09:00: ultima chiusura completa USA)
  * Senza argomento: sceglie in base all'ora di Roma (prima delle 21:00 = mid, altrimenti close).
  */
 // Solo da cron/terminale: blocca l'esecuzione via web (alcuni host usano php-cgi anche per il cron).
@@ -344,7 +345,8 @@ logm("Snapshot: $snapshot");
 $uni = load_universe($ROOT);
 $uniIt = load_universe_it($ROOT);
 if (!write_prices($PUBLIC . '/prices.json', $snapshot, $uni, $uniIt)) exit(1);
-if ($snapshot === 'mid') { echo 'OK: prices.json (mid)' . PHP_EOL; exit(0); }
+$withScanner = $snapshot === 'close' || in_array('--scanner', $argv ?? [], true);
+if (!$withScanner) { echo 'OK: prices.json (' . $snapshot . ')' . PHP_EOL; exit(0); }
 
 $meta = [];
 foreach ($uni as $u) $meta[$u['ticker']] = $u;
