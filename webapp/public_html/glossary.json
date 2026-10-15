@@ -118,5 +118,9 @@
  "etf": {
   "label": "ETF",
   "text": "SPDR sector ETF that represents the company's GICS sector (e.g. XLK = technology, XLV = health care, XLF = financials)."
+ },
+ "last_date": {
+  "label": "Last update",
+  "text": "Date of the latest trading session included in the data for this stock (end-of-day close)."
  }
 }

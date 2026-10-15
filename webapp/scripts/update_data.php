@@ -189,7 +189,7 @@ function compute_row(string $t, array $b, array $spyClose): array {
     foreach ($anchors as $k => $a) { $av[$k] = avwap_dist($b, $a); if ($av[$k] !== null && $av[$k] > 0) $above++; }
 
     return [
-        'ticker' => $t, 'price' => r($price),
+        'ticker' => $t, 'price' => r($price), 'last_date' => $last,
         '_rs_raw' => $rsRaw, '_mom_raw' => $momRaw, '_p5' => $p5, '_p15' => $p15,
         'perf_1m' => r($p1m), 'perf_3m' => r($p3m), 'perf_6m' => r($p6m), 'perf_12m' => r($p12m),
         'rs_vs_spy' => r($rsVsSpy),

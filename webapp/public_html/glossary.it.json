@@ -118,5 +118,9 @@
  "etf": {
   "label": "ETF",
   "text": "ETF settoriale SPDR che rappresenta il settore GICS della società (es. XLK = tecnologia, XLV = sanità, XLF = finanza)."
+ },
+ "last_date": {
+  "label": "Ultimo aggiornamento",
+  "text": "Data dell'ultima seduta di borsa inclusa nei dati di questo titolo (chiusura di fine giornata)."
  }
 }

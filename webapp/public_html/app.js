@@ -1,6 +1,6 @@
 const VIEWS = {
-  essenziale: ['ticker','company','price','pe_ttm','rs_composite','mom_breve','state','delta_1w3w','avwap','eps_yoy','sales_yoy','etf'],
-  completa: ['ticker','company','sector','price','pe_ttm','rs_composite','mom_breve','state','delta_1w3w','avwap','avwap_m','avwap_q','avwap_6m','avwap_y',
+  essenziale: ['ticker','company','price','last_date','pe_ttm','rs_composite','mom_breve','state','delta_1w3w','avwap','eps_yoy','sales_yoy','etf'],
+  completa: ['ticker','company','sector','price','last_date','pe_ttm','rs_composite','mom_breve','state','delta_1w3w','avwap','avwap_m','avwap_q','avwap_6m','avwap_y',
     'perf_1m','perf_3m','perf_6m','perf_12m','rs_vs_spy','dist_high','dist_low','vs_sma50','vs_sma200','avg_vol','rel_vol','atr_pct','eps_yoy','sales_yoy','etf'],
 };
 let COLS = VIEWS.essenziale;
@@ -34,6 +34,7 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 function fmt(k, v) {
   if (v === null || v === undefined) return '—';
   if (k === 'company') return esc(v);
+  if (k === 'last_date') return esc(String(v).split('-').reverse().join('/'));
   if (k === 'state' || typeof v === 'string') return esc(T(v));
   if (k === 'avwap') return v + '/4';
   if (k === 'price') return '$' + v.toLocaleString(LOC, {minimumFractionDigits: 2});
@@ -138,7 +139,7 @@ async function init() {
     fetch(IT ? '/glossary.it.json' : '/glossary.json').then(r => r.json()),
     fetch('/data.json?_=' + Date.now()).then(r => r.json()),
   ]);
-  rows = data.rows.map(r => ({...r, company: r.name, state: LEGACY[r.state] || r.state, eps_yoy: LEGACY[r.eps_yoy] || r.eps_yoy}));
+  rows = data.rows.map(r => ({...r, company: r.name, last_date: r.last_date || data.market_date, state: LEGACY[r.state] || r.state, eps_yoy: LEGACY[r.eps_yoy] || r.eps_yoy}));
   $('updated').textContent = T('UPDATED') + ': ' + new Date(data.updated).toLocaleString(LOC) + ' · BENCHMARK ' + data.benchmark;
   $('n-univ').textContent = rows.length.toLocaleString(LOC);
   [...new Set(rows.map(r => r.sector).filter(Boolean))].sort()

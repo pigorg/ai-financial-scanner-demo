@@ -157,7 +157,7 @@ def compute_row(t: str, df: pd.DataFrame, spy_close: pd.Series) -> dict:
     above = sum(1 for x in av.values() if x is not None and x > 0)
 
     return {
-        "ticker": t, "price": r(price),
+        "ticker": t, "price": r(price), "last_date": last.strftime("%Y-%m-%d"),
         "_rs_raw": rs_raw, "_mom_raw": mom_raw, "_p5": p5, "_p15": p15,
         "perf_1m": r(p1m), "perf_3m": r(p3m), "perf_6m": r(p6m), "perf_12m": r(p12m),
         "rs_vs_spy": r(rs_vs_spy),
