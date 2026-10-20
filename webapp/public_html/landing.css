@@ -134,3 +134,28 @@ details p{margin:0 0 18px;color:#b6c3ce}
   .btn.big{width:100%;text-align:center}
   .cta-top .btn{padding:8px 12px;font-size:13px}
 }
+
+/* hidden attribute must win over component display rules */
+[hidden]{display:none !important}
+.links a.cur{color:var(--lime)}
+
+/* contact page */
+.contact{padding:64px 0 90px;min-height:60vh}
+.ctitle{font:800 clamp(30px,4vw,42px)/1.1 var(--sans);letter-spacing:-.02em;margin:0 0 14px}
+.cintro{font-size:18px;color:#c5d3de;margin:0 0 30px;max-width:640px}
+.cintro strong{color:#fff}
+.cform{background:linear-gradient(160deg,#0c150a,#070e07);border:1px solid var(--line2);border-radius:14px;padding:28px}
+.cf{display:block;margin-bottom:18px}
+.cf span{display:block;font:500 12px var(--mono);letter-spacing:.06em;color:var(--muted);margin-bottom:7px}
+.cf input,.cf textarea{width:100%;font:15px var(--sans);color:var(--text);background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:12px 14px;outline:none}
+.cf textarea{resize:vertical;min-height:150px}
+.cf input:focus,.cf textarea:focus{border-color:var(--lime)}
+.cchk{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.5;color:#c5d3de;margin:6px 0 22px;cursor:pointer}
+.cchk input{width:19px;height:19px;flex:none;margin-top:2px;accent-color:var(--lime)}
+.cchk a{color:var(--lime)}
+.cnote{font-size:12.5px;color:var(--muted);margin:14px 0 0}
+.hp{position:absolute;left:-5000px;height:0;overflow:hidden}
+.cmsg{border-radius:8px;padding:12px 14px;font-size:14px;line-height:1.5;margin-bottom:18px}
+.cmsg.ok{background:#0c2214;border:1px solid #1f6a3a;color:#7de8a8}
+.cmsg.err{background:#2a0e0c;border:1px solid #7a2a24;color:#ff9b92}
+.btn[disabled]{opacity:.6;cursor:wait}

@@ -55,6 +55,25 @@ try {
             $u = Auth::user();
             out(['csrf' => Auth::csrfToken(), 'user' => $u ? public_user($u) : null]);
 
+        // ---- contatti
+        case 'contact':
+            if (!empty($in['website'])) throw new ApiError(tr('Invalid request.'));   // honeypot anti-bot
+            $name = trim(preg_replace('/\s+/u', ' ', $str('name')));
+            $email = strtolower(trim($str('email')));
+            $text = trim(str_replace("\r\n", "\n", $str('message')));
+            if (mb_strlen($name) < 2 || mb_strlen($name) > 80) throw new ApiError(tr('Please enter your name or nickname (2-80 characters).'));
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) throw new ApiError(tr('Invalid email address.'));
+            if (mb_strlen($text) < 10 || mb_strlen($text) > 3000) throw new ApiError(tr('Please write a message (10-3000 characters).'));
+            if (empty($in['accept_privacy'])) throw new ApiError(tr('Please accept the privacy policy to send your message.'));
+            Auth::throttle('contact_ip', client_ip(), 5, 3600);
+            Auth::throttle('contact_e', $email, 3, 3600);
+            $ok = Mailer::send(Mailer::contactTo(), '[Paper Trading] ' . mb_substr($name, 0, 60), 'contact', [
+                'name' => $name, 'email' => $email, 'message' => $text, 'lang' => I18n::$lang === 'it' ? 'Italiano' : 'English',
+                'date' => gmdate('Y-m-d H:i') . ' UTC',
+            ], $email);
+            if (!$ok) throw new ApiError(tr('We could not send your message right now. Please try again later or write to {email}.', ['email' => Mailer::contactTo()]), 503);
+            out(['message' => tr('Thanks! Your message has been sent. I will reply as soon as I can.')]);
+
         // ---- account
         case 'register':
             out(['message' => Auth::register($in)]);

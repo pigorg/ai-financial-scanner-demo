@@ -64,6 +64,11 @@ final class I18n {
         'Account reset.' => 'Conto azzerato.',
         'Action not found.' => 'Azione non trovata.',
         'Internal error. Please try again later.' => 'Errore interno. Riprova più tardi.',
+        'Please enter your name or nickname (2-80 characters).' => 'Inserisci il tuo nome o soprannome (2-80 caratteri).',
+        'Please write a message (10-3000 characters).' => 'Scrivi un messaggio (10-3000 caratteri).',
+        'Please accept the privacy policy to send your message.' => 'Accetta l\'informativa privacy per inviare il messaggio.',
+        'Thanks! Your message has been sent. I will reply as soon as I can.' => 'Grazie! Il messaggio è stato inviato. Ti risponderò appena possibile.',
+        'We could not send your message right now. Please try again later or write to {email}.' => 'Non siamo riusciti a inviare il messaggio in questo momento. Riprova più tardi oppure scrivi a {email}.',
     ];
 
     public static function init(): void {

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contacts – Paper Trading</title>
+<meta name="description" content="Contact the author of Paper Trading: report a problem, ask for a missing tool or suggest a new feature. The software is free.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ai-financial-scanner-demo.alessandrognola.com/contact/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%230c150a'/%3E%3Cpath d='M8 28 L15 18 L21 23 L32 10' fill='none' stroke='%23b6ff00' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/landing.css">
+</head>
+<body>
+
+<div class="demo-bar" role="note" data-i="demo"><strong>Demo version.</strong> Virtual money only · data may be wrong or delayed · not financial advice.</div>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="/" aria-label="Paper Trading">
+      <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0c150a" stroke="#2c4119"/><path d="M8 28 L15 18 L21 23 L32 10" fill="none" stroke="#b6ff00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="10" r="2.6" fill="#b6ff00"/></svg>
+      <span>PAPER<b>/</b>TRADING</span>
+    </a>
+    <nav class="links" aria-label="Main">
+      <a href="/#features" data-i="nav_features">Features</a>
+      <a href="/#how" data-i="nav_how">How it works</a>
+      <a href="/scanner/" data-i="nav_scanner">Scanner</a>
+      <a href="/#faq" data-i="nav_faq">FAQ</a>
+      <a href="/contact/" class="cur" data-i="nav_contact">Contacts</a>
+    </nav>
+    <div class="cta-top">
+      <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="it">IT</button></div>
+      <a class="btn ghost" id="top-login" href="/account/#/login" data-i="btn_login">Log in</a>
+      <a class="btn primary" id="top-signup" href="/account/#/register" data-i="btn_signup">Sign up free</a>
+    </div>
+  </div>
+</header>
+
+<main class="contact">
+  <div class="wrap narrow">
+    <h1 class="ctitle" data-i="c_title">Contacts</h1>
+    <p class="cintro" data-i="c_intro">This software is <strong>free</strong>. If you have trouble using it, if you need a tool that is not there yet, or if you would like a feature to be implemented, <strong>write to me</strong>.</p>
+
+    <form id="cform" class="cform" novalidate>
+      <div id="cmsg" role="status" aria-live="polite"></div>
+
+      <label class="cf">
+        <span data-i="c_name">Your name, username or nickname</span>
+        <input name="name" type="text" maxlength="80" autocomplete="name" required>
+      </label>
+
+      <label class="cf">
+        <span data-i="c_email">Your email</span>
+        <input name="email" type="email" maxlength="190" autocomplete="email" required>
+      </label>
+
+      <label class="cf">
+        <span data-i="c_msg">Message</span>
+        <textarea name="message" rows="7" maxlength="3000" required data-iph="c_ph" placeholder="Tell me what happened, what is missing or what you would like to see…"></textarea>
+      </label>
+
+      <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+
+      <label class="cchk">
+        <input type="checkbox" name="accept_privacy" value="1" required>
+        <span data-i="c_priv">I have read the <a href="/privacy.html" data-legal="privacy" target="_blank" rel="noopener">Privacy &amp; Cookies policy</a> and I agree to the processing of my data to receive a reply to this message.</span>
+      </label>
+
+      <button class="btn primary big" type="submit" id="csend" data-i="c_send">Send message</button>
+      <p class="cnote" data-i="c_note">Your email is used only to answer you. It is not added to any list.</p>
+    </form>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p data-i="foot"><strong>Disclaimer.</strong> Paper Trading is a demo for educational purposes. The money is virtual, no orders are executed on real markets, and there are no prizes. Data comes from public sources and may be wrong, delayed or incomplete. Nothing here is financial advice. The service, accounts and data may be suspended or deleted at any time.</p>
+    <p class="links2"><a href="/terms.html" data-legal="terms" data-i="l_terms">Terms &amp; Conditions</a> · <a href="/privacy.html" data-legal="privacy" data-i="l_priv">Privacy &amp; Cookies</a> · <a href="#" data-consent-open data-i="l_cookie">Cookie settings</a> · <a href="/scanner/" data-i="nav_scanner">Scanner</a> · <a href="/account/#/login" data-i="btn_login">Log in</a></p>
+  </div>
+</footer>
+
+<script src="/i18n.js"></script>
+<script>
+I18N.applyStatic({
+  title: 'Contatti – Paper Trading',
+  desc: "Contatta l'autore di Paper Trading: segnala un problema, chiedi uno strumento mancante o suggerisci una nuova funzione. Il software è gratuito.",
+  demo: '<strong>Versione demo.</strong> Solo denaro virtuale · i dati possono essere errati o in ritardo · non è consulenza finanziaria.',
+  nav_features: 'Funzioni', nav_how: 'Come funziona', nav_scanner: 'Scanner', nav_faq: 'FAQ', nav_contact: 'Contatti',
+  btn_login: 'Accedi', btn_signup: 'Registrati gratis', btn_app: "Apri l'app",
+  c_title: 'Contatti',
+  c_intro: 'Questo software è <strong>gratuito</strong>. Se hai problemi a usarlo, se ti serve uno strumento che non è ancora presente o se vorresti che venisse implementata qualche funzione, <strong>scrivimi</strong>.',
+  c_name: 'Il tuo nome, username o soprannome', c_email: 'La tua email', c_msg: 'Messaggio',
+  c_ph: 'Raccontami cosa è successo, cosa manca o cosa vorresti vedere…',
+  c_priv: 'Ho letto l\'<a href="/informativa-privacy.html" data-legal="privacy" target="_blank" rel="noopener">informativa privacy e cookie</a> e acconsento al trattamento dei miei dati per ricevere una risposta a questo messaggio.',
+  c_send: 'Invia messaggio', c_note: "La tua email serve solo per risponderti. Non viene inserita in nessuna lista.",
+  foot: '<strong>Disclaimer.</strong> Paper Trading è una demo a scopo educativo. Il denaro è virtuale, nessun ordine viene eseguito sui mercati reali e non ci sono premi. I dati provengono da fonti pubbliche e possono essere errati, in ritardo o incompleti. Nulla qui è consulenza finanziaria. Il servizio, gli account e i dati possono essere sospesi o eliminati in qualsiasi momento.',
+  l_terms: 'Termini e condizioni', l_priv: 'Privacy e cookie', l_cookie: 'Gestisci cookie'
+});
+I18N.wire();
+</script>
+<script src="/consent.js"></script>
+<script src="/contact/contact.js"></script>
+</body>
+</html>

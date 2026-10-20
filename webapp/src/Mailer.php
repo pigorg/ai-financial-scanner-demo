@@ -29,7 +29,7 @@ final class Mailer {
     }
 
     /** $template = nome file senza estensione (es. password_reset). Ritorna true se inviata. */
-    public static function send(string $to, string $subject, string $template, array $vars): bool {
+    public static function send(string $to, string $subject, string $template, array $vars, ?string $replyTo = null): bool {
         $c = self::cfg();
         $vars += [
             'site_name' => $c['site_name'], 'site_url' => $c['site_url'], 'reply_to' => $c['reply_to'],
@@ -45,15 +45,16 @@ final class Mailer {
             $m->isSMTP();
             $m->Host = $c['host'];
             $m->Port = (int)$c['port'];
-            $m->SMTPAuth = true;
+            $m->SMTPAuth = ($c['username'] ?? '') !== '';
             $m->Username = $c['username'];
             $m->Password = $c['password'];
-            $m->SMTPSecure = $c['encryption'] === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+            if (in_array($c['encryption'], ['', 'none'], true)) { $m->SMTPSecure = ''; $m->SMTPAutoTLS = false; }
+            else $m->SMTPSecure = $c['encryption'] === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
             $m->CharSet = 'UTF-8';
             $m->Timeout = 15;
             $m->SMTPDebug = !empty($c['debug']) ? 2 : 0;
             $m->setFrom($c['from_email'], $c['from_name']);
-            $m->addReplyTo($c['reply_to']);
+            $m->addReplyTo($replyTo ?: $c['reply_to']);
             $m->addAddress($to);
             $m->isHTML(true);
             $m->Subject = $subject;
@@ -65,6 +66,9 @@ final class Mailer {
             return false;
         }
     }
+
+    /** Indirizzo che riceve i messaggi del form contatti (config: contact_to, altrimenti reply_to). */
+    public static function contactTo(): string { $c = self::cfg(); return $c['contact_to'] ?? $c['reply_to']; }
 
     public static function siteUrl(): string { return rtrim(self::cfg()['site_url'], '/'); }
     public static function resetTtlMinutes(): int { return (int)(self::cfg()['reset_token_ttl_minutes'] ?? 60); }

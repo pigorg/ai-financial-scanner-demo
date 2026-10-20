@@ -1,0 +1,11 @@
+{{site_name}} - contact form
+
+Name / nickname: {{name}}
+Email: {{email}}
+Language: {{lang}}
+Sent: {{date}}
+
+{{message}}
+
+--
+Reply to this email to answer (Reply-To = sender). The sender accepted the privacy policy.

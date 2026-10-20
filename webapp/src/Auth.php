@@ -78,6 +78,12 @@ final class Auth {
         }
     }
 
+    /** Limita le richieste: errore 429 oltre $max in $windowSec secondi, altrimenti registra l'evento. */
+    public static function throttle(string $kind, string $ident, int $max, int $windowSec): void {
+        self::limit($kind, $ident, $max, $windowSec);
+        self::hit($kind, $ident);
+    }
+
     private static function limit(string $kind, string $ident, int $max, int $windowSec): void {
         if (self::tooMany($kind, $ident, $max, $windowSec)) {
             throw new ApiError(tr('Too many attempts. Please try again in a few minutes.'), 429);

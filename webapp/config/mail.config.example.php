@@ -21,6 +21,8 @@ return [
     'from_email' => 'noreply@alessandrognola.com',
     'from_name'  => 'AI Financial Scanner Demo',
     'reply_to'   => 'informazioni@alessandrognola.com',
+    // Dove arrivano i messaggi del form Contatti (se omesso, usa reply_to)
+    'contact_to' => 'informazioni@alessandrognola.com',
 
     // --- Sito e link nelle email ---
     'site_name'  => 'AI Financial Scanner Demo',

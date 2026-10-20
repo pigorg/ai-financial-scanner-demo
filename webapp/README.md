@@ -65,3 +65,8 @@ Le colonne vanno aggiornate in tre punti: il calcolo (`compute_row` in Python, `
 - Email: i template in `templates/email/` sono in inglese, le versioni italiane hanno suffisso `.it` (es. `verify_email.it.html`). La lingua arriva dall'header `X-Lang` inviato dall'app.
 - Testi legali: inglese `terms.html`, `privacy.html`; italiano `termini.html`, `informativa-privacy.html`.
 - Per aggiungere un testo: scrivilo in inglese nel codice e aggiungi la traduzione italiana nel relativo dizionario.
+
+## Pagina Contatti
+- `/contact/` (bilingue): form con nome/soprannome, email, messaggio e spunta privacy. L'API `contact` (`api.php`) invia un'email a `contact_to` (in `config/mail.config.php`, altrimenti `reply_to`) con Reply-To sul mittente. Nessun messaggio viene salvato nel database.
+- Limiti anti-spam: 5 messaggi/ora per IP, 3/ora per email, campo trappola nascosto.
+- Banner cookie: `consent.js` lo mostra solo se `GA_ID` è valorizzato.

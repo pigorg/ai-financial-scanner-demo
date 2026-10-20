@@ -11,6 +11,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://ai-financial-scanner-demo.alessandrognola.com/contact/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
     <loc>https://ai-financial-scanner-demo.alessandrognola.com/terms.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
