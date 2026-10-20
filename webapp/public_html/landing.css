@@ -159,3 +159,17 @@ details p{margin:0 0 18px;color:#b6c3ce}
 .cmsg.ok{background:#0c2214;border:1px solid #1f6a3a;color:#7de8a8}
 .cmsg.err{background:#2a0e0c;border:1px solid #7a2a24;color:#ff9b92}
 .btn[disabled]{opacity:.6;cursor:wait}
+
+/* contact form polish */
+.cform{box-shadow:0 24px 60px #0008;padding:32px}
+.crow{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cf input,.cf textarea{display:block;background:#0b1409;border:1px solid #2a3d19;border-radius:10px;padding:14px 16px;font:16px/1.4 var(--sans);transition:border-color .15s,box-shadow .15s,background .15s}
+.cf input{height:50px}
+.cf input::placeholder,.cf textarea::placeholder{color:#5f7060}
+.cf input:hover,.cf textarea:hover{border-color:#3c5524}
+.cf input:focus,.cf textarea:focus{background:#0d170b;border-color:var(--lime);box-shadow:0 0 0 4px rgba(182,255,0,.14)}
+.cf span{margin-bottom:8px}
+.cf input:-webkit-autofill{-webkit-box-shadow:0 0 0 1000px #0b1409 inset;-webkit-text-fill-color:#e6edf3;caret-color:#e6edf3}
+.cchk{padding:14px 16px;border:1px solid var(--line2);border-radius:10px;background:#0a120a}
+#csend{width:100%;text-align:center;font-size:16px}
+@media(max-width:700px){.crow{grid-template-columns:1fr;gap:0}.cform{padding:22px}}
