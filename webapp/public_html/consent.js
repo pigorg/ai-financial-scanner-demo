@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   // Put your GA4 measurement ID here (e.g. 'G-ABCDE12345'). If empty, analytics is never loaded.
-  var GA_ID = '';
+  var GA_ID = 'G-SEP2S80C2W';
   var KEY = 'aifs_consent_v1';
   function lang() { try { return localStorage.getItem('aifs_lang') === 'it' ? 'it' : 'en'; } catch (e) { return 'en'; } }
 
