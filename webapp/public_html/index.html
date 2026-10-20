@@ -4,21 +4,34 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paper Trading – Practice investing with virtual money</title>
-<meta name="description" content="Free paper trading simulator with virtual money. Scan 500+ US stocks, trade US and Italian shares, set stop loss and take profit, and track your portfolio. No real money, no risk. Demo version.">
+<meta name="description" content="Free paper trading simulator with virtual money. Scan 500+ US stocks, trade US and Italian shares, set stop loss and take profit. No real money, no risk.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://ai-financial-scanner-demo.alessandrognola.com/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Paper Trading – Practice investing with virtual money">
 <meta property="og:description" content="Free paper trading simulator with a built-in stock scanner. Learn to invest without risking a single euro.">
 <meta property="og:url" content="https://ai-financial-scanner-demo.alessandrognola.com/">
+<meta property="og:site_name" content="Paper Trading">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://ai-financial-scanner-demo.alessandrognola.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Paper Trading – Practice investing with virtual money">
+<meta name="twitter:description" content="Free paper trading simulator with a built-in stock scanner. Learn to invest without risking a single euro.">
+<meta name="twitter:image" content="https://ai-financial-scanner-demo.alessandrognola.com/og-image.png">
 <meta name="theme-color" content="#050905">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%230c150a'/%3E%3Cpath d='M8 28 L15 18 L21 23 L32 10' fill='none' stroke='%23b6ff00' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/landing.css?v=3">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Paper Trading","url":"https://ai-financial-scanner-demo.alessandrognola.com/","applicationCategory":"FinanceApplication","operatingSystem":"Any","description":"Free paper trading simulator with virtual money and a built-in stock scanner.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"author":{"@type":"Person","name":"Alessandro Gnola"}}
+</script>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is nothing to pay, no deposit and no premium plan. It is a personal project built for learning, shared with anyone who finds it useful."}}, {"@type": "Question", "name": "Is any real money involved?", "acceptedAnswer": {"@type": "Answer", "text": "No. The money is 100% virtual, orders are never sent to a real market, and there are no prizes, rankings with rewards or promotions."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "From public data sources, updated four times a day on trading days (9:00, 12:00, 16:00 and 21:00, Rome time). They can be delayed or inaccurate, so this is a demo and not a source for real decisions."}}, {"@type": "Question", "name": "What do I need to sign up?", "acceptedAnswer": {"@type": "Answer", "text": "A username, an email address and a password. You confirm your email and you are ready. You can delete your account and all your data at any time."}}, {"@type": "Question", "name": "How do stop loss and take profit work here?", "acceptedAnswer": {"@type": "Answer", "text": "You set a price below (stop loss) and/or above (take profit) the current one. When a price update reaches that level, the whole position is sold. The execution price can differ from your level, as it can in real markets."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an educational simulation. Nothing on the site is a recommendation, and simulated results do not guarantee real-world results."}}]}
 </script>
 </head>
 <body>
@@ -197,7 +210,7 @@
   'use strict';
   var IT = {
     title: 'Paper Trading – Impara a investire con soldi virtuali',
-    desc: 'Simulatore di paper trading gratuito con denaro virtuale. Scansiona oltre 500 titoli USA, opera su azioni USA e italiane, imposta stop loss e take profit e segui il tuo portafoglio. Nessun denaro reale, nessun rischio. Versione demo.',
+    desc: 'Simulatore di paper trading gratuito con denaro virtuale. Scansiona oltre 500 titoli USA, opera su azioni USA e italiane, imposta stop loss e take profit. Nessun denaro reale, nessun rischio.',
     demo: '<strong>Versione demo.</strong> Solo denaro virtuale · i dati possono essere errati o in ritardo · non è consulenza finanziaria.',
     nav_features: 'Funzioni', nav_how: 'Come funziona', nav_scanner: 'Scanner', nav_faq: 'FAQ', nav_contact: 'Contatti',
     btn_login: 'Accedi', btn_signup: 'Registrati gratis',

@@ -4,9 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stock Scanner – Paper Trading</title>
-<meta name="description" content="Free stock scanner for 500+ S&P 500 stocks, updated daily: relative strength, trend and fundamentals with filters, charts and CSV export. Demo version, not financial advice.">
+<meta name="description" content="Free stock scanner for 500+ S&P 500 stocks: relative strength, trend and fundamentals with filters, charts and CSV export. Demo, not financial advice.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://ai-financial-scanner-demo.alessandrognola.com/scanner/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Stock Scanner – Paper Trading">
+<meta property="og:description" content="Free stock scanner for 500+ S&P 500 stocks: relative strength, trend and fundamentals with filters, charts and CSV export. Demo, not financial advice.">
+<meta property="og:url" content="https://ai-financial-scanner-demo.alessandrognola.com/scanner/">
+<meta property="og:site_name" content="Paper Trading">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://ai-financial-scanner-demo.alessandrognola.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Stock Scanner – Paper Trading">
+<meta name="twitter:description" content="Free stock scanner for 500+ S&P 500 stocks: relative strength, trend and fundamentals with filters, charts and CSV export. Demo, not financial advice.">
+<meta name="twitter:image" content="https://ai-financial-scanner-demo.alessandrognola.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -105,6 +120,12 @@
     <div id="guide-list"></div>
   </main>
 
+  <section class="about">
+    <h2 data-i="about_h">About this stock scanner</h2>
+    <p data-i="about_p1">This free scanner ranks about 500 S&amp;P 500 stocks by relative strength against the market, short-term momentum, trend (50 and 200-day moving averages, anchored VWAP) and earnings and revenue growth. Filter by sector, strength or growth, open a chart for any stock and export the results to CSV. The data is refreshed four times a day on weekdays.</p>
+    <p data-i="about_p2">Found an idea? Practise it risk-free: every ticker has Buy and Sell buttons that open the <a href="/account/">paper trading</a> simulator, where you trade with virtual money. This is a demo for educational purposes, not financial advice.</p>
+  </section>
+
   <p class="disclaimer" data-i="disclaimer"><strong>Disclaimer.</strong> Demo for illustrative purposes only: data is calculated from public sources (Yahoo Finance, Wikipedia) with no guarantee of accuracy, completeness, timeliness or proper operation. No financial advice or recommendation. All liability is disclaimed for decisions made on the basis of what is shown.<br>Charts: <a href="https://github.com/tradingview/lightweight-charts">TradingView Lightweight Charts</a>.<span class="credits" style="display:block">Made with <span class="heart" aria-label="love">&#10084;</span> by Alessandro Gnola</span></p>
   <p class="legal-links"><a href="/terms.html" data-legal="terms" data-i="l_terms">Terms &amp; Conditions</a> · <a href="/privacy.html" data-legal="privacy" data-i="l_priv">Privacy &amp; Cookies</a> · <a href="#" data-consent-open data-i="l_cookie">Cookie settings</a></p>
 </div>
@@ -138,6 +159,9 @@ I18N.applyStatic({
   papbtn: 'PAPER TRADING · ACCEDI / REGISTRATI', contact: 'CONTATTI',
   papcta: '<strong>Prova il paper trading gratis</strong> · crea la tua simulazione con denaro virtuale (da 10.000 a 100.000) e compra/vendi azioni USA e italiane senza rischi. <span>Crea account ›</span>',
   tab_guide: 'GUIDA', applied: 'FILTRI APPLICATI', apply: 'APPLICA FILTRI', reset: 'AZZERA',
+  about_h: 'Informazioni su questo scanner',
+  about_p1: "Questo scanner gratuito ordina circa 500 titoli dell'S&amp;P 500 per forza relativa rispetto al mercato, momentum di breve periodo, trend (medie mobili a 50 e 200 giorni, VWAP ancorato) e crescita di utili e ricavi. Filtra per settore, forza o crescita, apri il grafico di ogni titolo ed esporta i risultati in CSV. I dati si aggiornano quattro volte al giorno nei giorni feriali.",
+  about_p2: 'Hai trovato un\'idea? Mettila alla prova senza rischi: ogni ticker ha i pulsanti Acquista e Vendi che aprono il simulatore di <a href="/account/">paper trading</a>, dove operi con denaro virtuale. È una demo a scopo educativo, non è consulenza finanziaria.',
   h_univ: 'UNIVERSO', tickers: 'Ticker', ph_ticker: 'es. AAPL, MSFT', sector: 'Settore', all_sectors: 'Tutti i settori', universe: 'Universo',
   h_rs: 'FORZA RELATIVA', mom_min: 'Mom Breve min', state: 'Stato', all: 'Tutti', st_imp: 'Migliora', st_std: 'Stabile', st_wk: 'Peggiora',
   h_trend: 'TREND', above50: 'Prezzo sopra SMA50', above200: 'Prezzo sopra SMA200', any: 'Qualsiasi', dh_min: 'Dist. Max 52w min %', ph_dh: 'es. -10',
