@@ -24,7 +24,7 @@ I18N.add({
   'Create your account': 'Crea il tuo account',
   'Free, with <strong>virtual</strong> money. You only need a username, an email and a password.': 'Gratis, con denaro <strong>virtuale</strong>. Servono solo username, email e password.',
   'Username': 'Username', '3-30 characters: letters, numbers, underscore.': '3-30 caratteri: lettere, numeri, underscore.',
-  'Email': 'Email', 'We will send you a link to confirm it. One account per email.': 'Riceverai un link per confermarla. Un solo account per email.',
+  'Email': 'Email', 'We will send you a link to confirm it. One account per email. It may also be used to send you news about updates and new features.': 'Riceverai un link per confermarla. Un solo account per email. Può essere usata anche per inviarti novità su aggiornamenti e nuove funzioni.',
   'At least 8 characters, with letters and numbers.': 'Almeno 8 caratteri, con lettere e numeri.',
   'Account currency': 'Valuta del conto', 'Euro (€)': 'Euro (€)', 'US dollar ($)': 'Dollaro USA ($)',
   'Virtual budget': 'Budget virtuale', 'Website': 'Sito web',
@@ -224,7 +224,7 @@ function viewRegister() {
     <p class="muted">${T('Free, with <strong>virtual</strong> money. You only need a username, an email and a password.')}</p>
     <form id="f-reg"><div class="fmsg"></div>
       <label class="fld">${T('Username')}<input name="username" autocomplete="username" pattern="[A-Za-z0-9_]{3,30}" required><small>${T('3-30 characters: letters, numbers, underscore.')}</small></label>
-      <label class="fld">${T('Email')}<input name="email" type="email" autocomplete="email" required><small>${T('We will send you a link to confirm it. One account per email.')}</small></label>
+      <label class="fld">${T('Email')}<input name="email" type="email" autocomplete="email" required><small>${T('We will send you a link to confirm it. One account per email. It may also be used to send you news about updates and new features.')}</small></label>
       <label class="fld">${T('Password')}<input name="password" type="password" autocomplete="new-password" minlength="8" required><small>${T('At least 8 characters, with letters and numbers.')}</small></label>
       <div class="fld row2">
         <div>${T('Account currency')}<select name="currency"><option value="EUR">${T('Euro (€)')}</option><option value="USD">${T('US dollar ($)')}</option></select></div>
