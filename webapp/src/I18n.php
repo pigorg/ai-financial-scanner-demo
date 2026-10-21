@@ -69,6 +69,9 @@ final class I18n {
         'Please accept the privacy policy to send your message.' => 'Accetta l\'informativa privacy per inviare il messaggio.',
         'Thanks! Your message has been sent. I will reply as soon as I can.' => 'Grazie! Il messaggio è stato inviato. Ti risponderò appena possibile.',
         'We could not send your message right now. Please try again later or write to {email}.' => 'Non siamo riusciti a inviare il messaggio in questo momento. Riprova più tardi oppure scrivi a {email}.',
+        'Please enter a limit price greater than 0.' => 'Inserisci un prezzo limite maggiore di 0.',
+        'Limit order placed: it stays active until the end of the trading day.' => 'Ordine a limite inserito: resta attivo fino alla fine della giornata di borsa.',
+        'Invalid export format.' => 'Formato di esportazione non valido.',
     ];
 
     public static function init(): void {

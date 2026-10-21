@@ -112,6 +112,14 @@ I18N.add({
   'Permanently delete your account and all your data? This cannot be undone.': 'Eliminare DEFINITIVAMENTE il tuo account e tutti i dati? Non si può annullare.',
   'Account deleted': 'Account eliminato', 'Your account and all linked data have been deleted.': 'Il tuo account e tutti i dati collegati sono stati eliminati.',
   'Create a new account': 'Crea un nuovo account',
+  // limit orders, expiry, export
+  'NOT EXECUTED': 'NON ESEGUITO', 'Expired at the end of the trading day.': 'Scaduto a fine giornata di borsa.',
+  'Valid until {when}': 'Valido fino al {when}', 'Type': 'Tipo', 'Market': 'A mercato', 'Next update': 'Al prossimo aggiornamento',
+  'Limit {price}': 'Limite {price}', 'Export orders': 'Esporta ordini',
+  '<strong>Limit price</strong>: runs only if the price reaches your limit (buy at or below it, sell at or above it). Valid for one trading day: if it is not executed by the end of the day it shows as "not executed".':
+    '<strong>Prezzo limite</strong>: si esegue solo se il prezzo raggiunge il tuo limite (acquisto a quel prezzo o meno, vendita a quel prezzo o più). Vale un giorno di borsa: se non viene eseguito entro fine giornata risulta «non eseguito».',
+  'Limit price ({ccy})': 'Prezzo limite ({ccy})', 'e.g. 150': 'es. 150', 'Enter a limit price.': 'Inserisci un prezzo limite.',
+  'with a limit of {p}': 'con limite {p}',
   // chrome
   'VIRTUAL MONEY': 'DENARO VIRTUALE'
 });
@@ -380,6 +388,8 @@ async function viewTrade(q) {
         <div class="radio">
           <label><input type="radio" name="mode" value="now" checked><span>${T('<strong>Now</strong> at the price of the {snap} ({when})', {snap: snapLabel(prices.snapshot), when: when(prices.updated)})}</span></label>
           <label><input type="radio" name="mode" value="next"><span>${T('<strong>At the next price update</strong> (weekdays at 9:00, 12:00, 16:00 and 21:00, Rome time). The price is not known in advance; you can cancel the order while it is queued.')}</span></label>
+          <label><input type="radio" name="mode" value="limit"><span>${T('<strong>Limit price</strong>: runs only if the price reaches your limit (buy at or below it, sell at or above it). Valid for one trading day: if it is not executed by the end of the day it shows as "not executed".')}
+            <span class="limitrow"><input id="t-limit" name="limit_price" type="number" step="0.01" min="0" placeholder="${esc(T('e.g. 150'))}" aria-label="${esc(T('Limit price ({ccy})', {ccy: ''}))}"><small id="t-limit-h"></small></span></span></label>
         </div>
         <div id="t-est" class="estimate">${T('Select a stock.')}</div>
         <div class="btnrow"><button class="buy" type="submit" data-side="buy">${T('BUY')}</button><button class="sell" type="submit" data-side="sell">${T('SELL')}</button></div>
@@ -426,10 +436,18 @@ async function viewTrade(q) {
   };
   $('#t-sl').addEventListener('input', lvHint); $('#t-tp').addEventListener('input', lvHint);
   document.querySelectorAll('#f-trade [name=mode]').forEach(r => r.addEventListener('change', () => {
-    const off = document.querySelector('#f-trade [name=mode]:checked').value === 'next';
+    const off = document.querySelector('#f-trade [name=mode]:checked').value !== 'now';
     $('#t-sl').disabled = $('#t-tp').disabled = off;
     if (off) { $('#t-sl').value = $('#t-tp').value = ''; lvHint(); }
   }));
+  const limHint = () => {
+    const v = parseFloat($('#t-limit').value), x = sel ? prices.prices[sel] : null;
+    $('#t-limit-h').textContent = x ? (v > 0 ? `${x.c} · ${T('{pct}% vs current price', {pct: sgn((v / x.p - 1) * 100)})}` : T('Limit price ({ccy})', {ccy: x.c})) : '';
+  };
+  $('#t-limit').addEventListener('input', () => { document.querySelector('#f-trade [name=mode][value=limit]').checked = true; document.querySelector('#f-trade [name=mode][value=limit]').dispatchEvent(new Event('change')); limHint(); });
+  $('#t-limit').addEventListener('focus', () => { const r = document.querySelector('#f-trade [name=mode][value=limit]'); if (!r.checked) { r.checked = true; r.dispatchEvent(new Event('change')); } });
+  search.addEventListener('input', limHint);
+  sug.addEventListener('click', limHint);
   const want = (q.get('t') || '').toUpperCase();
   if (want && prices.prices[want]) choose(want);
 
@@ -440,11 +458,14 @@ async function viewTrade(q) {
     if (!sel) throw new Error(T('Select a stock.'));
     const qty = parseInt(d.qty, 10);
     const sl = d.stop_loss || '', tp = d.take_profit || '';
+    const lim = d.mode === 'limit' ? parseFloat(d.limit_price) : 0;
+    if (d.mode === 'limit' && !(lim > 0)) throw new Error(T('Enter a limit price.'));
     if ((sl || tp) && (side !== 'buy' || d.mode !== 'now')) throw new Error(T('Stop loss and take profit can be set on an immediate buy. For a position you already hold, use the SL/TP button in the portfolio.'));
     const ask = T('{side} {qty} {t} ({mode})? Simulated order, virtual money.', {
-      side: T(side === 'buy' ? 'Buy' : 'Sell'), qty, t: sel, mode: T(d.mode === 'now' ? 'now' : 'at the next price update')});
+      side: T(side === 'buy' ? 'Buy' : 'Sell'), qty, t: sel,
+      mode: d.mode === 'limit' ? T('with a limit of {p}', {p: num(lim) + ' ' + prices.prices[sel].c}) : T(d.mode === 'now' ? 'now' : 'at the next price update')});
     if (!confirm(ask)) return;
-    const r = await api('place_order', {ticker: sel, side, qty, mode: d.mode, stop_loss: sl, take_profit: tp});
+    const r = await api('place_order', {ticker: sel, side, qty, mode: d.mode, stop_loss: sl, take_profit: tp, limit_price: d.mode === 'limit' ? lim : ''});
     box.innerHTML = msg('ok', r.message);
     setTimeout(() => viewTrade(q), 900);
   });
@@ -452,22 +473,27 @@ async function viewTrade(q) {
 
 async function viewOrders() {
   setView(loading());
-  const {orders} = await api('orders');
-  const statusLbl = {executed: T('EXECUTED'), pending: T('QUEUED'), cancelled: T('CANCELLED'), rejected: T('REJECTED')};
+  const [{orders}] = await Promise.all([api('orders'), loadPrices()]);
+  const statusLbl = {executed: T('EXECUTED'), pending: T('QUEUED'), cancelled: T('CANCELLED'), rejected: T('REJECTED'), expired: T('NOT EXECUTED')};
+  const typeLbl = o => o.mode === 'limit' ? T('Limit {price}', {price: num(o.limit_price) + ' ' + esc(prices?.prices?.[o.ticker]?.c || o.price_ccy || '')})
+    : o.mode === 'next' ? T('Next update') : T('Market');
   const rows = orders.map(o => `<tr>
     <td class="l">${when(o.executed_at || o.created_at)}</td>
     <td class="tk l">${esc(o.ticker)}</td>
     <td><span class="chip ${o.side}">${o.side === 'buy' ? T('BUY') : T('SELL')}</span></td>
+    <td>${typeLbl(o)}</td>
     <td>${o.qty}</td>
     <td>${o.price === null ? '—' : num(o.price) + ' ' + esc(o.price_ccy)}</td>
     <td>${o.gross === null ? '—' : money(o.gross)}</td>
     <td>${o.commission === null ? '—' : money(o.commission)}</td>
     <td class="${cls(o.realized_pl)}">${o.realized_pl === null ? '—' : sgn(+o.realized_pl)}</td>
     <td>${o.snapshot ? snapLabel(o.snapshot) : '—'}</td>
-    <td><span class="chip ${o.status}" title="${esc(o.note || '')}">${statusLbl[o.status] || esc(o.status)}</span>${o.note ? `<div class="note">${esc(o.note)}</div>` : ''}</td>
+    <td><span class="chip ${o.status}" title="${esc(o.note || '')}">${statusLbl[o.status] || esc(o.status)}</span>${o.note ? `<div class="note">${esc(o.note)}</div>` : ''}${o.status === 'expired' ? `<div class="note">${T('Expired at the end of the trading day.')}</div>` : ''}${o.status === 'pending' && o.valid_until ? `<div class="note">${T('Valid until {when}', {when: when(o.valid_until)})}</div>` : ''}</td>
     <td>${o.status === 'pending' ? `<button class="sm danger" data-cancel="${o.id}">${T('CANCEL')}</button>` : ''}</td></tr>`).join('');
+  const xl = f => `/api.php?action=export_orders&format=${f}&lang=${I18N.lang}`;
   setView(`<h2>${T('Order history')}</h2><p class="muted">${T('Latest {n} orders. Amounts in your account currency ({ccy}).', {n: orders.length, ccy: esc(user.currency)})}</p>
-    ${orders.length ? `<div class="table-wrap"><table><thead><tr><th class="l">${T('Date')}</th><th class="l">${T('Ticker')}</th><th>${T('Side')}</th><th>${T('Qty')}</th><th>${T('Price')}</th><th>${T('Order value')}</th><th>${T('Commission')}</th><th>${T('Realised P/L')}</th><th>${T('Price from')}</th><th>${T('Status')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+    ${orders.length ? `<div class="exportbar"><span>${T('Export orders')}:</span><a class="xbtn" href="${xl('csv')}" download>CSV</a><a class="xbtn" href="${xl('xlsx')}" download>Excel</a><a class="xbtn" href="${xl('xml')}" download>XML</a></div>` : ''}
+    ${orders.length ? `<div class="table-wrap"><table><thead><tr><th class="l">${T('Date')}</th><th class="l">${T('Ticker')}</th><th>${T('Side')}</th><th>${T('Type')}</th><th>${T('Qty')}</th><th>${T('Price')}</th><th>${T('Order value')}</th><th>${T('Commission')}</th><th>${T('Realised P/L')}</th><th>${T('Price from')}</th><th>${T('Status')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
       : `<div class="empty panel">${T('No orders yet.')}</div>`}`);
   document.querySelectorAll('[data-cancel]').forEach(b => b.onclick = async () => {
     b.disabled = true;

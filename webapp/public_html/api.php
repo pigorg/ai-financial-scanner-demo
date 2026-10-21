@@ -11,6 +11,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../src/bootstrap.php';
 require_once __DIR__ . '/../src/Auth.php';
 require_once __DIR__ . '/../src/Trading.php';
+require_once __DIR__ . '/../src/Export.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -111,9 +112,18 @@ try {
             out(['equity' => Trading::equityHistory(Auth::requireUser())]);
         case 'place_order':
             $u = Auth::requireUser();
-            $r = Trading::placeOrder($u, $str('ticker'), $str('side'), (int)($in['qty'] ?? 0), $str('mode') ?: 'now', $lv('stop_loss'), $lv('take_profit'));
-            out(['order' => $r, 'message' => $r['status'] === 'executed'
-                ? tr('Order executed.') : tr('Order queued: it will be executed at the next price update.')]);
+            $r = Trading::placeOrder($u, $str('ticker'), $str('side'), (int)($in['qty'] ?? 0), $str('mode') ?: 'now', $lv('stop_loss'), $lv('take_profit'), $lv('limit_price'));
+            out(['order' => $r, 'message' => $r['status'] === 'executed' ? tr('Order executed.')
+                : (($r['mode'] ?? '') === 'limit' ? tr('Limit order placed: it stays active until the end of the trading day.')
+                    : tr('Order queued: it will be executed at the next price update.'))]);
+        case 'export_orders':
+            $u = Auth::requireUser();
+            [$fname, $mime, $body] = Export::orders($u, (string)($_GET['format'] ?? 'csv'));
+            header('Content-Type: ' . $mime);
+            header('Content-Disposition: attachment; filename="' . $fname . '"');
+            header('Content-Length: ' . strlen($body));
+            echo $body;
+            exit;
         case 'set_levels':
             Trading::setLevels(Auth::requireUser(), $str('ticker'), $lv('stop_loss'), $lv('take_profit'));
             out(['message' => tr('Levels saved.')]);

@@ -76,3 +76,10 @@ button.sm{padding:6px 10px;font-size:10px}
 }
 
 .btnrow button.pref{box-shadow:0 0 0 2px #fff}
+
+.exportbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px;font:11px var(--mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.xbtn{display:inline-block;font:600 11px var(--mono);letter-spacing:.08em;color:var(--cyan);background:#0c150a;border:1px solid var(--line2);border-radius:4px;padding:9px 16px;text-decoration:none}
+.xbtn:hover{border-color:var(--cyan);color:#fff}
+.limitrow{display:flex;gap:10px;align-items:center;margin-top:8px}
+.limitrow input{width:150px}
+.limitrow small{color:var(--muted);font:11px var(--sans)}

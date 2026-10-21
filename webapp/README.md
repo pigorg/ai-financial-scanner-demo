@@ -70,3 +70,10 @@ Le colonne vanno aggiornate in tre punti: il calcolo (`compute_row` in Python, `
 - `/contact/` (bilingue): form con nome/soprannome, email, messaggio e spunta privacy. L'API `contact` (`api.php`) invia un'email a `contact_to` (in `config/mail.config.php`, altrimenti `reply_to`) con Reply-To sul mittente. Nessun messaggio viene salvato nel database.
 - Limiti anti-spam: 5 messaggi/ora per IP, 3/ora per email, campo trappola nascosto.
 - Banner cookie: `consent.js` lo mostra solo se `GA_ID` è valorizzato.
+
+## Ordini: tipi, scadenza, esportazione
+- Tipi: **a mercato** (subito), **al prossimo aggiornamento** e **a limite** (prezzo massimo per l'acquisto, minimo per la vendita; se il limite è già soddisfatto si esegue subito).
+- Gli ordini in attesa valgono **un giorno di borsa**: scadono alle 22:00 (Roma) del giorno in cui possono essere valutati (se inseriti dopo l'ultimo aggiornamento delle 21:00 o nel weekend, del giorno feriale successivo). Poi risultano **non eseguiti** (stato `expired`). Costanti in `src/Trading.php` (`LAST_UPDATE_HOUR`, `SESSION_END_HOUR`).
+- `post_update.php` valuta gli ordini a limite a ogni giro del cron e fa scadere quelli oltre il termine.
+- Esportazione dalla pagina Orders: CSV (`;` in italiano, `,` in inglese), Excel `.xlsx` e XML, tramite `api.php?action=export_orders&format=csv|xlsx|xml` (`src/Export.php`, nessuna estensione PHP richiesta).
+- Le tabelle si aggiornano da sole (colonne `limit_price`, `valid_until`, stato `expired`).

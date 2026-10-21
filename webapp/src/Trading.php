@@ -8,7 +8,9 @@ declare(strict_types=1);
 final class Trading {
     public const MAX_PENDING = 20;
     public const MAX_QTY = 1000000;
-    public const MAX_AGE_SEC = 5 * 86400;   // oltre questa età i prezzi sono considerati non aggiornati
+    public const MAX_AGE_SEC = 5 * 86400;
+    public const LAST_UPDATE_HOUR = 21;   // ora di Roma dell'ultimo aggiornamento prezzi del giorno (cron)
+    public const SESSION_END_HOUR = 22;   // ora di Roma in cui finisce la giornata di borsa (chiusura USA)   // oltre questa età i prezzi sono considerati non aggiornati
 
     private static ?array $prices = null;
 
@@ -50,10 +52,11 @@ final class Trading {
 
     // ------------------------------------------------------------ ordini
     /** Inserisce l'ordine: immediato ('now') o in coda per il prossimo aggiornamento ('next'). */
-    public static function placeOrder(array $user, string $ticker, string $side, int $qty, string $mode, ?float $stopLoss = null, ?float $takeProfit = null): array {
+    public static function placeOrder(array $user, string $ticker, string $side, int $qty, string $mode, ?float $stopLoss = null, ?float $takeProfit = null, ?float $limitPrice = null): array {
         $ticker = strtoupper(trim($ticker));
         if (!in_array($side, ['buy', 'sell'], true)) throw new ApiError(tr('Invalid operation.'));
-        if (!in_array($mode, ['now', 'next'], true)) throw new ApiError(tr('Invalid execution mode.'));
+        if (!in_array($mode, ['now', 'next', 'limit'], true)) throw new ApiError(tr('Invalid execution mode.'));
+        if ($mode === 'limit' && ($limitPrice === null || $limitPrice <= 0)) throw new ApiError(tr('Please enter a limit price greater than 0.'));
         if ($qty < 1 || $qty > self::MAX_QTY) throw new ApiError(tr('Invalid quantity.'));
         $p = self::prices();
         self::assertFresh($p);
@@ -66,14 +69,21 @@ final class Trading {
             self::validateLevels((float)$q['p'], $stopLoss, $takeProfit);
         }
 
-        if ($mode === 'next') {
+        if ($mode === 'limit' && self::limitHit($side, (float)$q['p'], $limitPrice)) {
+            // il limite è già soddisfatto dal prezzo attuale: esecuzione immediata
+            $id = self::fill((int)$user['id'], $ticker, $side, $qty, null, 'limit');
+            db()->prepare('UPDATE orders SET limit_price = ? WHERE id = ?')->execute([round($limitPrice, 4), $id]);
+            return ['id' => $id, 'status' => 'executed', 'mode' => 'limit'];
+        }
+        if ($mode === 'next' || $mode === 'limit') {
+            self::expireStale();
             $st = db()->prepare('SELECT COUNT(*) FROM orders WHERE user_id = ? AND status = \'pending\'');
             $st->execute([$user['id']]);
             if ((int)$st->fetchColumn() >= self::MAX_PENDING) throw new ApiError(tr('You have too many queued orders (maximum {n}).', ['n' => self::MAX_PENDING]));
-            db()->prepare('INSERT INTO orders (user_id, ticker, market, side, qty, mode, status, created_at)
-                    VALUES (?,?,?,?,?,\'next\',\'pending\',?)')
-                ->execute([$user['id'], $ticker, $q['m'], $side, $qty, now_utc()]);
-            return ['id' => (int)db()->lastInsertId(), 'status' => 'pending'];
+            db()->prepare('INSERT INTO orders (user_id, ticker, market, side, qty, mode, status, limit_price, valid_until, created_at)
+                    VALUES (?,?,?,?,?,?,\'pending\',?,?,?)')
+                ->execute([$user['id'], $ticker, $q['m'], $side, $qty, $mode, $mode === 'limit' ? round($limitPrice, 4) : null, self::validUntil(), now_utc()]);
+            return ['id' => (int)db()->lastInsertId(), 'status' => 'pending', 'mode' => $mode];
         }
         $id = self::fill((int)$user['id'], $ticker, $side, $qty, null, 'now');
         if ($hasLevels) self::applyLevels((int)$user['id'], $ticker, $stopLoss, $takeProfit);
@@ -140,9 +150,10 @@ final class Trading {
             $now = now_utc();
             $vals = [$p['snapshot'] ?? null, $price, $q['c'], $fx, $gross, $comm, $realized, $now];
             if ($orderId) {
-                $pdo->prepare('UPDATE orders SET status = \'executed\', snapshot = ?, price = ?, price_ccy = ?, fx_rate = ?,
-                        gross = ?, commission = ?, realized_pl = ?, executed_at = ?, note = NULL WHERE id = ? AND status = \'pending\'')
-                    ->execute([...$vals, $orderId]);
+                $upd = $pdo->prepare('UPDATE orders SET status = \'executed\', snapshot = ?, price = ?, price_ccy = ?, fx_rate = ?,
+                        gross = ?, commission = ?, realized_pl = ?, executed_at = ?, note = NULL WHERE id = ? AND status = \'pending\'');
+                $upd->execute([...$vals, $orderId]);
+                if ($upd->rowCount() === 0) throw new ApiError(tr('Order not found or already executed.'), 404);   // scaduto o annullato nel frattempo
             } else {
                 $pdo->prepare('INSERT INTO orders (user_id, ticker, market, side, qty, mode, status, snapshot, price, price_ccy,
                         fx_rate, gross, commission, realized_pl, note, created_at, executed_at)
@@ -165,21 +176,56 @@ final class Trading {
         if ($st->rowCount() === 0) throw new ApiError(tr('Order not found or already executed.'), 404);
     }
 
+    /** Il limite è raggiunto? Acquisto: prezzo <= limite. Vendita: prezzo >= limite. */
+    public static function limitHit(string $side, float $price, float $limit): bool {
+        return $side === 'buy' ? $price <= $limit + 1e-9 : $price >= $limit - 1e-9;
+    }
+
+    /**
+     * Scadenza (UTC) di un ordine in attesa: fine della giornata di borsa in cui può essere valutato.
+     * Se l'ordine è inserito prima dell'ultimo aggiornamento di un giorno feriale vale fino alle 22:00 (Roma) di quel giorno,
+     * altrimenti fino alle 22:00 del primo giorno feriale successivo.
+     */
+    public static function validUntil(?\DateTimeImmutable $now = null): string {
+        $utc = new \DateTimeZone('UTC');
+        $n = ($now ?? new \DateTimeImmutable('now', $utc))->setTimezone(new \DateTimeZone('Europe/Rome'));
+        $before = (int)$n->format('N') <= 5 && (int)$n->format('G') < self::LAST_UPDATE_HOUR;
+        $d = $n->setTime(self::SESSION_END_HOUR, 0, 0);
+        if (!$before) {
+            $d = $d->modify('+1 day');
+            while ((int)$d->format('N') > 5) $d = $d->modify('+1 day');
+        }
+        return $d->setTimezone($utc)->format('Y-m-d H:i:s');
+    }
+
+    /** Gli ordini in attesa oltre la scadenza diventano «non eseguiti» (stato expired). Ritorna quanti. */
+    public static function expireStale(): int {
+        $st = db()->prepare('UPDATE orders SET status = \'expired\', executed_at = ? WHERE status = \'pending\' AND valid_until IS NOT NULL AND valid_until < ?');
+        $st->execute([now_utc(), now_utc()]);
+        return $st->rowCount();
+    }
+
     /** Esegue gli ordini in coda al nuovo snapshot (chiamato dal cron dopo l'aggiornamento prezzi). */
     public static function processPending(): array {
         $done = 0; $rejected = 0;
-        $rows = db()->query('SELECT id, user_id, ticker, side, qty FROM orders WHERE status = \'pending\' AND mode = \'next\' ORDER BY id')->fetchAll();
+        $p = self::prices();
+        $rows = db()->query('SELECT id, user_id, ticker, side, qty, mode, limit_price FROM orders WHERE status = \'pending\' AND mode IN (\'next\', \'limit\') ORDER BY id')->fetchAll();
         foreach ($rows as $o) {
+            if ($o['mode'] === 'limit') {
+                $px = $p['prices'][$o['ticker']]['p'] ?? null;
+                if ($px === null || !self::limitHit($o['side'], (float)$px, (float)$o['limit_price'])) continue;   // resta in attesa
+            }
             try {
-                self::fill((int)$o['user_id'], $o['ticker'], $o['side'], (int)$o['qty'], (int)$o['id'], 'next');
+                self::fill((int)$o['user_id'], $o['ticker'], $o['side'], (int)$o['qty'], (int)$o['id'], $o['mode']);
                 $done++;
             } catch (ApiError $e) {
-                db()->prepare('UPDATE orders SET status = \'rejected\', note = ?, executed_at = ? WHERE id = ?')
+                db()->prepare('UPDATE orders SET status = \'rejected\', note = ?, executed_at = ? WHERE id = ? AND status = \'pending\'')
                     ->execute([mb_substr($e->getMessage(), 0, 190), now_utc(), $o['id']]);
                 $rejected++;
             }
         }
-        return [$done, $rejected];
+        $expired = self::expireStale();
+        return [$done, $rejected, $expired];
     }
 
     // ------------------------------------------------------------ stop loss / take profit
@@ -322,7 +368,8 @@ final class Trading {
     }
 
     public static function orders(array $user, int $limit = 200): array {
-        $st = db()->prepare('SELECT id, ticker, market, side, qty, mode, status, snapshot, price, price_ccy, fx_rate, gross,
+        self::expireStale();
+        $st = db()->prepare('SELECT id, ticker, market, side, qty, mode, status, limit_price, valid_until, snapshot, price, price_ccy, fx_rate, gross,
                 commission, realized_pl, note, created_at, executed_at FROM orders WHERE user_id = ? ORDER BY id DESC LIMIT ' . (int)$limit);
         $st->execute([$user['id']]);
         return $st->fetchAll();

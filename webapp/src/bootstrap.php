@@ -46,6 +46,15 @@ function migrate_schema(PDO $pdo): void {
     if ($cols && !in_array('stop_loss', $cols, true)) {
         $pdo->exec('ALTER TABLE positions ADD COLUMN stop_loss DECIMAL(18,4) NULL, ADD COLUMN take_profit DECIMAL(18,4) NULL');
     }
+    $oc = $pdo->query("SELECT COLUMN_NAME FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'")->fetchAll(PDO::FETCH_COLUMN);
+    if ($oc && !in_array('limit_price', $oc, true)) {
+        $pdo->exec("ALTER TABLE orders
+            ADD COLUMN limit_price DECIMAL(18,4) NULL AFTER status,
+            ADD COLUMN valid_until DATETIME NULL AFTER limit_price,
+            MODIFY mode ENUM('now','next','limit') NOT NULL DEFAULT 'now',
+            MODIFY status ENUM('executed','pending','cancelled','rejected','expired') NOT NULL");
+    }
 }
 
 function now_utc(): string { return gmdate('Y-m-d H:i:s'); }
