@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   terms_accepted_at DATETIME NOT NULL,
   created_at      DATETIME NOT NULL,
   last_login_at   DATETIME NULL,
+  pw_changed_at   DATETIME(6) NULL COMMENT 'le sessioni aperte prima di questa data non sono più valide',
   UNIQUE KEY uq_users_username (username),
   UNIQUE KEY uq_users_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

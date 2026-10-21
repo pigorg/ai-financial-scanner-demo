@@ -83,3 +83,4 @@ button.sm{padding:6px 10px;font-size:10px}
 .limitrow{display:flex;gap:10px;align-items:center;margin-top:8px}
 .limitrow input{width:150px}
 .limitrow small{color:var(--muted);font:11px var(--sans)}
+.exportbar select{width:auto;min-width:230px;font:13px var(--sans);padding:8px 10px}

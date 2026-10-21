@@ -115,7 +115,8 @@ I18N.add({
   // limit orders, expiry, export
   'NOT EXECUTED': 'NON ESEGUITO', 'Expired at the end of the trading day.': 'Scaduto a fine giornata di borsa.',
   'Valid until {when}': 'Valido fino al {when}', 'Type': 'Tipo', 'Market': 'A mercato', 'Next update': 'Al prossimo aggiornamento',
-  'Limit {price}': 'Limite {price}', 'Export orders': 'Esporta ordini',
+  'Limit {price}': 'Limite {price}', 'Export orders': 'Esporta ordini', 'Month': 'Mese', '{n} orders': '{n} operazioni',
+  'This password is too common. Please choose a less predictable one.': 'Questa password è troppo comune. Scegline una meno prevedibile.',
   '<strong>Limit price</strong>: runs only if the price reaches your limit (buy at or below it, sell at or above it). Valid for one trading day: if it is not executed by the end of the day it shows as "not executed".':
     '<strong>Prezzo limite</strong>: si esegue solo se il prezzo raggiunge il tuo limite (acquisto a quel prezzo o meno, vendita a quel prezzo o più). Vale un giorno di borsa: se non viene eseguito entro fine giornata risulta «non eseguito».',
   'Limit price ({ccy})': 'Prezzo limite ({ccy})', 'e.g. 150': 'es. 150', 'Enter a limit price.': 'Inserisci un prezzo limite.',
@@ -473,7 +474,7 @@ async function viewTrade(q) {
 
 async function viewOrders() {
   setView(loading());
-  const [{orders}] = await Promise.all([api('orders'), loadPrices()]);
+  const [{orders, months}] = await Promise.all([api('orders'), loadPrices()]);
   const statusLbl = {executed: T('EXECUTED'), pending: T('QUEUED'), cancelled: T('CANCELLED'), rejected: T('REJECTED'), expired: T('NOT EXECUTED')};
   const typeLbl = o => o.mode === 'limit' ? T('Limit {price}', {price: num(o.limit_price) + ' ' + esc(prices?.prices?.[o.ticker]?.c || o.price_ccy || '')})
     : o.mode === 'next' ? T('Next update') : T('Market');
@@ -490,11 +491,14 @@ async function viewOrders() {
     <td>${o.snapshot ? snapLabel(o.snapshot) : '—'}</td>
     <td><span class="chip ${o.status}" title="${esc(o.note || '')}">${statusLbl[o.status] || esc(o.status)}</span>${o.note ? `<div class="note">${esc(o.note)}</div>` : ''}${o.status === 'expired' ? `<div class="note">${T('Expired at the end of the trading day.')}</div>` : ''}${o.status === 'pending' && o.valid_until ? `<div class="note">${T('Valid until {when}', {when: when(o.valid_until)})}</div>` : ''}</td>
     <td>${o.status === 'pending' ? `<button class="sm danger" data-cancel="${o.id}">${T('CANCEL')}</button>` : ''}</td></tr>`).join('');
-  const xl = f => `/api.php?action=export_orders&format=${f}&lang=${I18N.lang}`;
+  const xl = (f, m) => `/api.php?action=export_orders&format=${f}&month=${encodeURIComponent(m)}&lang=${I18N.lang}`;
+  const monthLbl = m => { const [y, mo] = m.split('-').map(Number); const t = new Date(Date.UTC(y, mo - 1, 15)).toLocaleDateString(LOC, {month: 'long', year: 'numeric', timeZone: 'UTC'}); return t.charAt(0).toUpperCase() + t.slice(1); };
+  const monthOpts = (months || []).map(x => `<option value="${x.month}">${esc(monthLbl(x.month))} (${T('{n} orders', {n: x.count})})</option>`).join('');
   setView(`<h2>${T('Order history')}</h2><p class="muted">${T('Latest {n} orders. Amounts in your account currency ({ccy}).', {n: orders.length, ccy: esc(user.currency)})}</p>
-    ${orders.length ? `<div class="exportbar"><span>${T('Export orders')}:</span><a class="xbtn" href="${xl('csv')}" download>CSV</a><a class="xbtn" href="${xl('xlsx')}" download>Excel</a><a class="xbtn" href="${xl('xml')}" download>XML</a></div>` : ''}
+    ${monthOpts ? `<div class="exportbar"><span>${T('Export orders')}:</span><select id="x-month" aria-label="${esc(T('Month'))}">${monthOpts}</select><a class="xbtn" data-fmt="csv" href="${xl('csv', months[0].month)}" download>CSV</a><a class="xbtn" data-fmt="xlsx" href="${xl('xlsx', months[0].month)}" download>Excel</a><a class="xbtn" data-fmt="xml" href="${xl('xml', months[0].month)}" download>XML</a></div>` : ''}
     ${orders.length ? `<div class="table-wrap"><table><thead><tr><th class="l">${T('Date')}</th><th class="l">${T('Ticker')}</th><th>${T('Side')}</th><th>${T('Type')}</th><th>${T('Qty')}</th><th>${T('Price')}</th><th>${T('Order value')}</th><th>${T('Commission')}</th><th>${T('Realised P/L')}</th><th>${T('Price from')}</th><th>${T('Status')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
       : `<div class="empty panel">${T('No orders yet.')}</div>`}`);
+  document.querySelectorAll('.xbtn').forEach(a => a.addEventListener('click', () => { a.href = xl(a.dataset.fmt, $('#x-month').value); }));
   document.querySelectorAll('[data-cancel]').forEach(b => b.onclick = async () => {
     b.disabled = true;
     try { await api('cancel_order', {id: +b.dataset.cancel}); viewOrders(); } catch (e) { alert(e.message); b.disabled = false; }

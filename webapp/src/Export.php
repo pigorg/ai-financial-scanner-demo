@@ -10,14 +10,15 @@ final class Export {
     private const NUMERIC = ['id', 'quantity', 'limit_price', 'price', 'fx_rate', 'order_value', 'commission', 'realized_pl'];
 
     /** @return array{0:string,1:string,2:string} nome file, mime, contenuto */
-    public static function orders(array $user, string $format): array {
+    public static function orders(array $user, string $format, ?string $month = null): array {
         $format = strtolower($format);
         if (!in_array($format, ['csv', 'xlsx', 'xml'], true)) throw new ApiError(tr('Invalid export format.'));
-        $rows = self::rows(Trading::orders($user, 5000), (string)$user['currency']);
-        $name = 'orders-' . gmdate('Y-m-d') . '.' . $format;
+        $month = $month !== null && $month !== '' ? $month : (new \DateTimeImmutable('now', new \DateTimeZone('Europe/Rome')))->format('Y-m');
+        $rows = self::rows(Trading::ordersByMonth($user, $month), (string)$user['currency']);
+        $name = 'orders-' . $month . '.' . $format;
         switch ($format) {
             case 'csv':  return [$name, 'text/csv; charset=utf-8', self::csv($rows, I18n::$lang === 'it' ? ';' : ',')];
-            case 'xml':  return [$name, 'application/xml; charset=utf-8', self::xml($rows, (string)$user['currency'])];
+            case 'xml':  return [$name, 'application/xml; charset=utf-8', self::xml($rows, (string)$user['currency'], $month)];
             default:     return [$name, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', self::xlsx($rows)];
         }
     }
@@ -73,9 +74,9 @@ final class Export {
         return htmlspecialchars($s, ENT_XML1 | ENT_QUOTES, 'UTF-8');
     }
 
-    public static function xml(array $rows, string $ccy): string {
+    public static function xml(array $rows, string $ccy, string $month = ''): string {
         $x = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $x .= '<orders currency="' . self::x($ccy) . '" exported="' . gmdate('Y-m-d\TH:i:s\Z') . '" count="' . count($rows) . "\">\n";
+        $x .= '<orders currency="' . self::x($ccy) . '" month="' . self::x($month) . '" exported="' . gmdate('Y-m-d\TH:i:s\Z') . '" count="' . count($rows) . "\">\n";
         foreach ($rows as $r) {
             $x .= '  <order id="' . (int)$r['id'] . "\">\n";
             foreach (self::COLUMNS as $c) {

@@ -77,3 +77,19 @@ Le colonne vanno aggiornate in tre punti: il calcolo (`compute_row` in Python, `
 - `post_update.php` valuta gli ordini a limite a ogni giro del cron e fa scadere quelli oltre il termine.
 - Esportazione dalla pagina Orders: CSV (`;` in italiano, `,` in inglese), Excel `.xlsx` e XML, tramite `api.php?action=export_orders&format=csv|xlsx|xml` (`src/Export.php`, nessuna estensione PHP richiesta).
 - Le tabelle si aggiornano da sole (colonne `limit_price`, `valid_until`, stato `expired`).
+
+## Sicurezza (riepilogo)
+- Password con hash bcrypt, minimo 8 caratteri con lettere e numeri, elenco di password troppo comuni rifiutate.
+- Sessioni: cookie `Secure` + `HttpOnly` + `SameSite=Lax`, modalità strict, rigenerazione dell'ID al login, scadenza dopo 12 ore di inattività (7 giorni al massimo). Cambiando o reimpostando la password le altre sessioni aperte vengono chiuse (`users.pw_changed_at`).
+- CSRF su tutte le richieste che modificano dati; limiti ai tentativi (login, registrazione, recupero password, contatti); token monouso salvati solo come hash.
+- Query solo con parametri (PDO), output della pagina sempre escapato, errori PHP mai mostrati ai visitatori.
+- Libreria dei grafici caricata con Subresource Integrity (`integrity="sha384-..."`): se cambi versione, ricalcola l'hash.
+- Header di sicurezza da aggiungere nel `.htaccess` del sito (il file è gestito da cPanel e non è nel repository):
+
+      <IfModule mod_headers.c>
+      Header always set Strict-Transport-Security "max-age=31536000"
+      Header always set X-Content-Type-Options "nosniff"
+      Header always set X-Frame-Options "SAMEORIGIN"
+      Header always set Referrer-Policy "strict-origin-when-cross-origin"
+      Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+      </IfModule>

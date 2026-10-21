@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 date_default_timezone_set('UTC');   // tutte le date nel database sono UTC
+if (PHP_SAPI !== 'cli') { ini_set('display_errors', '0'); ini_set('log_errors', '1'); }   // mai mostrare errori ai visitatori
 
 define('APP_ROOT', dirname(__DIR__));
 require_once __DIR__ . '/I18n.php';
@@ -45,6 +46,11 @@ function migrate_schema(PDO $pdo): void {
             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'positions'")->fetchAll(PDO::FETCH_COLUMN);
     if ($cols && !in_array('stop_loss', $cols, true)) {
         $pdo->exec('ALTER TABLE positions ADD COLUMN stop_loss DECIMAL(18,4) NULL, ADD COLUMN take_profit DECIMAL(18,4) NULL');
+    }
+    $uc = $pdo->query("SELECT COLUMN_NAME FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users'")->fetchAll(PDO::FETCH_COLUMN);
+    if ($uc && !in_array('pw_changed_at', $uc, true)) {
+        $pdo->exec('ALTER TABLE users ADD COLUMN pw_changed_at DATETIME(6) NULL');
     }
     $oc = $pdo->query("SELECT COLUMN_NAME FROM information_schema.COLUMNS
             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'")->fetchAll(PDO::FETCH_COLUMN);

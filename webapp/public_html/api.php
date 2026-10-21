@@ -16,6 +16,8 @@ require_once __DIR__ . '/../src/Export.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Referrer-Policy: no-referrer');
 
 function out(array $data, int $status = 200): void {
     http_response_code($status);
@@ -107,7 +109,8 @@ try {
         case 'portfolio':
             out(['portfolio' => Trading::portfolio(Auth::requireUser())]);
         case 'orders':
-            out(['orders' => Trading::orders(Auth::requireUser())]);
+            $u = Auth::requireUser();
+            out(['orders' => Trading::orders($u), 'months' => Trading::orderMonths($u)]);
         case 'equity':
             out(['equity' => Trading::equityHistory(Auth::requireUser())]);
         case 'place_order':
@@ -118,7 +121,7 @@ try {
                     : tr('Order queued: it will be executed at the next price update.'))]);
         case 'export_orders':
             $u = Auth::requireUser();
-            [$fname, $mime, $body] = Export::orders($u, (string)($_GET['format'] ?? 'csv'));
+            [$fname, $mime, $body] = Export::orders($u, (string)($_GET['format'] ?? 'csv'), isset($_GET['month']) ? (string)$_GET['month'] : null);
             header('Content-Type: ' . $mime);
             header('Content-Disposition: attachment; filename="' . $fname . '"');
             header('Content-Length: ' . strlen($body));

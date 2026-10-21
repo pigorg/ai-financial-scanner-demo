@@ -72,6 +72,8 @@ final class I18n {
         'Please enter a limit price greater than 0.' => 'Inserisci un prezzo limite maggiore di 0.',
         'Limit order placed: it stays active until the end of the trading day.' => 'Ordine a limite inserito: resta attivo fino alla fine della giornata di borsa.',
         'Invalid export format.' => 'Formato di esportazione non valido.',
+        'This password is too common. Please choose a less predictable one.' => 'Questa password è troppo comune. Scegline una meno prevedibile.',
+        'Invalid month.' => 'Mese non valido.',
     ];
 
     public static function init(): void {

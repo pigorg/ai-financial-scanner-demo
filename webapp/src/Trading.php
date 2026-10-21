@@ -375,6 +375,38 @@ final class Trading {
         return $st->fetchAll();
     }
 
+    /** Ordini di un mese (YYYY-MM, ora di Roma), per data di esecuzione o, se non eseguiti, di inserimento. */
+    public static function ordersByMonth(array $user, string $month): array {
+        if (!preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month)) throw new ApiError(tr('Invalid month.'));
+        self::expireStale();
+        $utc = new \DateTimeZone('UTC');
+        $start = new \DateTimeImmutable($month . '-01 00:00:00', new \DateTimeZone('Europe/Rome'));
+        $s = $start->setTimezone($utc)->format('Y-m-d H:i:s');
+        $e = $start->modify('+1 month')->setTimezone($utc)->format('Y-m-d H:i:s');
+        $st = db()->prepare('SELECT id, ticker, market, side, qty, mode, status, limit_price, valid_until, snapshot, price, price_ccy, fx_rate, gross,
+                commission, realized_pl, note, created_at, executed_at FROM orders
+                WHERE user_id = ? AND COALESCE(executed_at, created_at) >= ? AND COALESCE(executed_at, created_at) < ?
+                ORDER BY id DESC LIMIT 5000');
+        $st->execute([$user['id'], $s, $e]);
+        return $st->fetchAll();
+    }
+
+    /** Mesi (ora di Roma) in cui l'utente ha operazioni: [['month' => '2026-10', 'count' => 7], ...], dal più recente. */
+    public static function orderMonths(array $user): array {
+        $st = db()->prepare('SELECT COALESCE(executed_at, created_at) AS ts FROM orders WHERE user_id = ?');
+        $st->execute([$user['id']]);
+        $rome = new \DateTimeZone('Europe/Rome');
+        $m = [];
+        foreach ($st->fetchAll(PDO::FETCH_COLUMN) as $ts) {
+            $k = (new \DateTimeImmutable($ts, new \DateTimeZone('UTC')))->setTimezone($rome)->format('Y-m');
+            $m[$k] = ($m[$k] ?? 0) + 1;
+        }
+        krsort($m);
+        $out = [];
+        foreach ($m as $k => $n) $out[] = ['month' => $k, 'count' => $n];
+        return $out;
+    }
+
     public static function equityHistory(array $user): array {
         $st = db()->prepare('SELECT ts, equity, cash FROM (SELECT ts, equity, cash FROM equity_history WHERE user_id = ? ORDER BY ts DESC LIMIT 2000) t ORDER BY ts');
         $st->execute([$user['id']]);

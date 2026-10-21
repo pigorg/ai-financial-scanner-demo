@@ -8,10 +8,33 @@ final class Auth {
     public const BUDGET_MIN = 10000;
     public const BUDGET_MAX = 100000;
     public const VERIFY_TTL_MIN = 24 * 60;
+    public const IDLE_SEC = 12 * 3600;      // sessione scaduta dopo 12 ore senza attività
+    public const MAX_SEC = 7 * 86400;       // e comunque dopo 7 giorni dal login
+
+    /** Password troppo diffuse: rifiutate anche se rispettano lettere+numeri. */
+    private const COMMON = ['password1', 'password12', 'password123', 'password1234', 'passw0rd', 'p@ssw0rd', 'qwerty123', 'qwerty1234',
+        'qwertyuiop1', 'iloveyou1', 'welcome1', 'welcome123', 'admin123', 'admin1234', 'letmein1', 'letmein123', 'abc12345', 'abcd1234',
+        'abcd12345', 'monkey123', 'dragon123', 'football1', 'baseball1', 'master123', 'sunshine1', 'princess1', 'superman1', '1q2w3e4r',
+        '1qaz2wsx', 'trustno1', 'changeme1', 'changeme123', 'test1234', 'test12345', 'user1234', 'login123', 'asdf1234', 'zaq12wsx',
+        'ciao1234', 'ciaociao1', 'password01', 'password2', 'qazwsx123', 'a1b2c3d4', 'azerty123', 'juventus1', 'inter1908', 'milan1899'];
+
+    /** Data/ora UTC con microsecondi (per confrontare con precisione cambio password e inizio sessione). */
+    private static function microNow(): string {
+        $t = microtime(true);
+        return gmdate('Y-m-d H:i:s', (int)$t) . substr(sprintf('%.6F', $t - floor($t)), 1);
+    }
+
+    private static function toEpoch(string $dt): float {
+        $d = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', strlen($dt) > 19 ? $dt : $dt . '.000000', new \DateTimeZone('UTC'));
+        return $d ? (float)$d->format('U.u') : 0.0;
+    }
 
     // ------------------------------------------------------------ sessione
     public static function startSession(): void {
         if (session_status() === PHP_SESSION_ACTIVE) return;
+        ini_set('session.use_strict_mode', '1');
+        ini_set('session.use_only_cookies', '1');
+        ini_set('session.use_trans_sid', '0');
         session_name('aifs_sid');
         session_set_cookie_params([
             'lifetime' => 0,
@@ -37,13 +60,23 @@ final class Auth {
     public static function user(): ?array {
         $id = $_SESSION['uid'] ?? null;
         if (!$id) return null;
-        $st = db()->prepare('SELECT * FROM users WHERE id = ?');
-        $st->execute([$id]);
-        $u = $st->fetch();
-        if (!$u || $u['status'] !== 'active') {
+        $now = time();
+        $last = (int)($_SESSION['last'] ?? 0);
+        $auth = (float)($_SESSION['auth_at'] ?? 0);
+        if (($last && $now - $last > self::IDLE_SEC) || ($auth && $now - $auth > self::MAX_SEC)) {
             unset($_SESSION['uid']);
             return null;
         }
+        $st = db()->prepare('SELECT * FROM users WHERE id = ?');
+        $st->execute([$id]);
+        $u = $st->fetch();
+        // sospeso, eliminato, oppure password cambiata dopo l'accesso di questa sessione: sessione non più valida
+        if (!$u || $u['status'] !== 'active'
+            || (!empty($u['pw_changed_at']) && self::toEpoch((string)$u['pw_changed_at']) > $auth)) {
+            unset($_SESSION['uid']);
+            return null;
+        }
+        $_SESSION['last'] = $now;
         return $u;
     }
 
@@ -99,6 +132,9 @@ final class Auth {
         if ($len > 72) throw new ApiError(tr('The password can be at most 72 characters long.'));
         if (!preg_match('/[A-Za-z]/', $p) || !preg_match('/\d/', $p)) {
             throw new ApiError(tr('The password must contain at least one letter and one number.'));
+        }
+        if (in_array(strtolower($p), self::COMMON, true)) {
+            throw new ApiError(tr('This password is too common. Please choose a less predictable one.'));
         }
     }
 
@@ -236,6 +272,8 @@ final class Auth {
         }
         session_regenerate_id(true);
         $_SESSION['uid'] = (int)$u['id'];
+        $_SESSION['auth_at'] = microtime(true);
+        $_SESSION['last'] = time();
         db()->prepare('UPDATE users SET last_login_at = ? WHERE id = ?')->execute([now_utc(), $u['id']]);
         return $u;
     }
@@ -269,8 +307,8 @@ final class Auth {
         $pdo = db();
         $pdo->beginTransaction();
         // il reset dimostra anche il possesso dell'email
-        $pdo->prepare('UPDATE users SET password_hash = ?, email_verified_at = COALESCE(email_verified_at, ?) WHERE id = ?')
-            ->execute([password_hash($password, PASSWORD_DEFAULT), now_utc(), $t['user_id']]);
+        $pdo->prepare('UPDATE users SET password_hash = ?, pw_changed_at = ?, email_verified_at = COALESCE(email_verified_at, ?) WHERE id = ?')
+            ->execute([password_hash($password, PASSWORD_DEFAULT), self::microNow(), now_utc(), $t['user_id']]);
         $pdo->prepare('UPDATE auth_tokens SET used_at = ? WHERE id = ?')->execute([now_utc(), $t['id']]);
         $pdo->prepare('DELETE FROM auth_tokens WHERE user_id = ? AND type = \'reset\' AND used_at IS NULL')->execute([$t['user_id']]);
         $pdo->commit();
@@ -279,7 +317,9 @@ final class Auth {
     public static function changePassword(array $user, string $current, string $new): void {
         if (!password_verify($current, $user['password_hash'])) throw new ApiError(tr('The current password is not correct.'), 403);
         self::checkPassword($new);
-        db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?')->execute([password_hash($new, PASSWORD_DEFAULT), $user['id']]);
+        db()->prepare('UPDATE users SET password_hash = ?, pw_changed_at = ? WHERE id = ?')->execute([password_hash($new, PASSWORD_DEFAULT), self::microNow(), $user['id']]);
+        $_SESSION['auth_at'] = microtime(true);   // questa sessione resta valida, le altre no
+        session_regenerate_id(true);
     }
 
     /** Cancellazione definitiva: elimina utente e, a cascata, ordini, posizioni, storico e token. */
